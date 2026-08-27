@@ -18,7 +18,7 @@ export async function PUT(request, context) {
     const params = await context.params;
     const id = params.id;
     const updateData = await request.json();
-    const isAdmin = user.role === 'admin' || updateData.isAdmin === true;
+    const isAdmin = user.role === 'admin';
     const updated = await updateBooking(user.userId, id, updateData, isAdmin);
 
     if (!updated) {
@@ -40,7 +40,7 @@ export async function DELETE(request, context) {
   try {
     const params = await context.params;
     const id = params.id;
-    const isAdmin = user.role === 'admin' || true;
+    const isAdmin = user.role === 'admin';
     const deleted = await deleteBooking(user.userId, id, isAdmin);
 
     if (!deleted) {
