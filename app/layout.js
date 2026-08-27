@@ -2,8 +2,8 @@ import './globals.css';
 import Script from 'next/script';
 
 export const metadata = {
-  title: 'Master Booking Control Hub (Render & MongoDB Edition)',
-  description: 'Multi-User Booking CRM & Token Ledger on Render.com',
+  title: 'Master Booking Control Hub (Netlify Edition)',
+  description: 'Multi-User Booking CRM & Token Ledger on Netlify',
 };
 
 export default function RootLayout({ children }) {

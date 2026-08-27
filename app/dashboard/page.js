@@ -759,7 +759,7 @@ export default function DashboardPage() {
                   <span style={{ color: '#5f6368' }}>Cloud Storage Sync:</span>
                   <strong style={{ color: isCloudConnected ? '#0f9d58' : '#b06000' }}>
                     {isCloudConnected ? (
-                      <span><i className="fa-solid fa-cloud-check"></i> Connected (MongoDB Atlas)</span>
+                      <span><i className="fa-solid fa-cloud-check"></i> Connected (Netlify Cloud Database)</span>
                     ) : (
                       <span><i className="fa-solid fa-triangle-exclamation"></i> Local Storage (Connect MongoDB Atlas)</span>
                     )}
