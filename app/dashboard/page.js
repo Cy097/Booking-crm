@@ -39,6 +39,7 @@ export default function DashboardPage() {
   const [activeTab, setActiveTab] = useState("ALL");
   const [discountTypeFilter, setDiscountTypeFilter] = useState("ALL");
   const [sortBy, setSortBy] = useState("dateDesc");
+  const [selectedDate, setSelectedDate] = useState(() => new Date().toISOString().split("T")[0]);
 
   // Modal State
   const [showModal, setShowModal] = useState(false);
@@ -291,6 +292,10 @@ export default function DashboardPage() {
   const getFilteredBookings = () => {
     let result = [...bookings];
 
+    if (selectedDate !== "ALL") {
+      result = result.filter((b) => b.bookingDate === selectedDate);
+    }
+
     if (search) {
       const q = search.toLowerCase();
       result = result.filter(b =>
@@ -339,15 +344,16 @@ export default function DashboardPage() {
   };
 
   const filteredBookings = getFilteredBookings();
+  const dateBookings = selectedDate === "ALL" ? bookings : bookings.filter((b) => b.bookingDate === selectedDate);
 
-  const tokenPaidCount = bookings.filter(b => b.tokenStatus === "Token Paid").length;
-  const tokenUnpaidCount = bookings.filter(b => b.tokenStatus === "Token Not Paid" || b.tokenStatus === "Token Not Taken").length;
-  const tokenNotTakenCount = bookings.filter(b => b.tokenStatus === "Token Not Taken").length;
-  const settledCount = bookings.filter(b => b.tokenStatus === "Settled").length;
-  const tokenPaidAmt = bookings.reduce((sum, b) => sum + (b.tokenStatus === "Token Paid" ? (parseFloat(b.tokenAmount) || 0) : 0), 0);
-  const confirmedCount = bookings.filter(b => b.bookingStatus === "Confirmed").length;
-  const pendingCount = bookings.filter(b => b.bookingStatus === "Pending").length;
-  const groupOfferCount = bookings.filter(b => b.discountType && b.discountType.startsWith("Group offer")).length;
+  const tokenPaidCount = dateBookings.filter(b => b.tokenStatus === "Token Paid").length;
+  const tokenUnpaidCount = dateBookings.filter(b => b.tokenStatus === "Token Not Paid").length;
+  const tokenNotTakenCount = dateBookings.filter(b => b.tokenStatus === "Token Not Taken").length;
+  const settledCount = dateBookings.filter(b => b.tokenStatus === "Settled").length;
+  const tokenPaidAmt = dateBookings.reduce((sum, b) => sum + (b.tokenStatus === "Token Paid" ? (parseFloat(b.tokenAmount) || 0) : 0), 0);
+  const confirmedCount = dateBookings.filter(b => b.bookingStatus === "Confirmed").length;
+  const pendingCount = dateBookings.filter(b => b.bookingStatus === "Pending").length;
+  const groupOfferCount = dateBookings.filter(b => b.discountType && b.discountType.startsWith("Group offer")).length;
 
   if (loading) {
     return (
@@ -496,6 +502,10 @@ export default function DashboardPage() {
         </div>
 
         <div className="filters-group">
+          <label htmlFor="bookingDateFilter" className="sr-only">Show bookings for date</label>
+          <input id="bookingDateFilter" className="form-select" type="date" value={selectedDate === "ALL" ? "" : selectedDate} onChange={(e) => setSelectedDate(e.target.value || "ALL")} aria-label="Show bookings for date" />
+          <button className={`btn btn-sm ${selectedDate === "ALL" ? "btn-primary" : "btn-secondary"}`} onClick={() => setSelectedDate("ALL")}>All Dates</button>
+          <button className="btn btn-secondary btn-sm" onClick={() => setSelectedDate(new Date().toISOString().split("T")[0])}>Today</button>
           <select className="form-select" value={discountTypeFilter} onChange={(e) => setDiscountTypeFilter(e.target.value)}>
             <option value="ALL">All Discounts</option>
             <option value="NUMERICAL">Presets (50 to 200)</option>
@@ -516,7 +526,7 @@ export default function DashboardPage() {
             <option value="None">No Discount (0)</option>
           </select>
 
-          <button className="btn btn-secondary btn-sm" onClick={() => { setSearch(""); setActiveTab("ALL"); setDiscountTypeFilter("ALL"); }}>
+          <button className="btn btn-secondary btn-sm" onClick={() => { setSearch(""); setActiveTab("ALL"); setDiscountTypeFilter("ALL"); setSelectedDate(new Date().toISOString().split("T")[0]); }}>
             <i className="fa-solid fa-filter-circle-xmark"></i> Clear Filters
           </button>
         </div>
@@ -721,6 +731,7 @@ export default function DashboardPage() {
                     <option value="Confirmed">Confirmed</option>
                     <option value="Pending">Pending</option>
                     <option value="Not Confirmed">Not Confirmed</option>
+                    <option value="Settled">Settled</option>
                   </select>
                 </div>
 
