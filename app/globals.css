@@ -535,6 +535,18 @@ body {
   border: 1px solid var(--danger-border);
 }
 
+.token-not-taken {
+  background: #d4edda;
+  color: #137333;
+  border: 1px solid #81c995;
+}
+
+.token-settled {
+  background: var(--success-bg);
+  color: var(--success-color);
+  border: 1px solid var(--success-border);
+}
+
 .status-pending {
   background: var(--warning-bg);
   color: var(--warning-color);

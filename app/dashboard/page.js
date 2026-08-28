@@ -186,7 +186,7 @@ export default function DashboardPage() {
   };
 
   const toggleTokenStatus = async (b) => {
-    const tokenStatuses = ["Token Paid", "Token Not Taken", "Settled"];
+    const tokenStatuses = ["Token Paid", "Token Not Paid", "Token Not Taken", "Settled"];
   const nextStatus = tokenStatuses[(tokenStatuses.indexOf(b.tokenStatus) + 1) % tokenStatuses.length];
     const nextAmt = nextStatus === "Token Paid" ? (b.tokenAmount > 0 ? b.tokenAmount : 500) : b.tokenAmount || 0;
     try {
@@ -584,10 +584,10 @@ export default function DashboardPage() {
                       </span>
                     </td>
                     <td>
-                      <span className={`badge-status ${b.tokenStatus === "Token Paid" ? "token-paid" : "token-unpaid"}`} onClick={() => toggleTokenStatus(b)} title="Click to toggle Token Status">
-                        <i className={`fa-solid ${b.tokenStatus === "Token Paid" ? "fa-circle-check" : "fa-circle-xmark"}`}></i>
-                        {b.tokenStatus === "Token Paid" ? `Token Paid (${formatINR(b.tokenAmount)})` : "Token Not Paid"}
-                      </span>
+  <span className={`badge-status ${b.tokenStatus === "Token Paid" ? "token-paid" : (b.tokenStatus === "Token Not Paid" ? "token-unpaid" : (b.tokenStatus === "Token Not Taken" ? "token-not-taken" : "token-settled"))}`} onClick={() => toggleTokenStatus(b)} title="Click to cycle Token Status">
+  <i className={`fa-solid ${b.tokenStatus === "Token Paid" ? "fa-circle-check" : (b.tokenStatus === "Settled" ? "fa-circle-check" : "fa-circle-xmark")}`}></i>
+  {b.tokenStatus === "Token Paid" ? `Token Paid (${formatINR(b.tokenAmount)})` : b.tokenStatus}
+  </span>
                     </td>
                     <td>
                       <span className={`badge-status ${b.bookingStatus === "Confirmed" ? "status-confirmed" : (b.bookingStatus === "Pending" ? "status-pending" : "status-not-confirmed")}`} onClick={() => cycleBookingStatus(b)} title="Click to cycle status">
@@ -691,12 +691,17 @@ export default function DashboardPage() {
 
                 <div className="form-group">
                   <label>Token Paid Status</label>
-                  <div style={{ display: 'flex', gap: '8px' }}>
-                    {["Token Paid", "Token Not Taken", "Settled"].map((status) => (
-                      <button key={status} type="button" className={`btn ${tokenStatus === status ? "btn-primary" : "btn-secondary"}`} style={{ flex: 1 }} onClick={() => setTokenStatus(status)}>
-                        {status}
-                      </button>
-                    ))}
+                  <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                    {["Token Paid", "Token Not Paid", "Token Not Taken", "Settled"].map((status) => {
+                      let btnColor = {};
+                      if (status === "Token Not Paid") btnColor = { backgroundColor: tokenStatus === status ? '#c5221f' : '#fadbd8', color: tokenStatus === status ? 'white' : '#c5221f', borderColor: '#c5221f' };
+                      else if (status === "Token Not Taken") btnColor = { backgroundColor: tokenStatus === status ? '#81c995' : '#d4edda', color: tokenStatus === status ? 'white' : '#137333', borderColor: '#81c995' };
+                      return (
+                        <button key={status} type="button" className={`btn ${tokenStatus === status ? "btn-primary" : "btn-secondary"}`} style={{ flex: 1, minWidth: '140px', ...btnColor }} onClick={() => setTokenStatus(status)}>
+                          {status}
+                        </button>
+                      );
+                    })}
                   </div>
                 </div>
 
