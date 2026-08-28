@@ -186,8 +186,9 @@ export default function DashboardPage() {
   };
 
   const toggleTokenStatus = async (b) => {
-    const nextStatus = b.tokenStatus === "Token Paid" ? "Token Not Paid" : "Token Paid";
-    const nextAmt = nextStatus === "Token Paid" ? (b.tokenAmount > 0 ? b.tokenAmount : 500) : 0;
+    const tokenStatuses = ["Token Paid", "Token Not Taken", "Settled"];
+  const nextStatus = tokenStatuses[(tokenStatuses.indexOf(b.tokenStatus) + 1) % tokenStatuses.length];
+    const nextAmt = nextStatus === "Token Paid" ? (b.tokenAmount > 0 ? b.tokenAmount : 500) : b.tokenAmount || 0;
     try {
       const res = await fetch(`/api/bookings/${b.id}`, {
         method: 'PUT',
@@ -305,6 +306,10 @@ export default function DashboardPage() {
       result = result.filter(b => b.tokenStatus === "Token Paid");
     } else if (activeTab === "UNPAID") {
       result = result.filter(b => b.tokenStatus === "Token Not Paid");
+    } else if (activeTab === "NOT_TAKEN") {
+      result = result.filter(b => b.tokenStatus === "Token Not Taken");
+    } else if (activeTab === "SETTLED") {
+      result = result.filter(b => b.tokenStatus === "Settled");
     } else if (activeTab === "CONFIRMED") {
       result = result.filter(b => b.bookingStatus === "Confirmed");
     } else if (activeTab === "PENDING") {
@@ -336,7 +341,9 @@ export default function DashboardPage() {
   const filteredBookings = getFilteredBookings();
 
   const tokenPaidCount = bookings.filter(b => b.tokenStatus === "Token Paid").length;
-  const tokenUnpaidCount = bookings.filter(b => b.tokenStatus === "Token Not Paid").length;
+  const tokenUnpaidCount = bookings.filter(b => b.tokenStatus === "Token Not Paid" || b.tokenStatus === "Token Not Taken").length;
+  const tokenNotTakenCount = bookings.filter(b => b.tokenStatus === "Token Not Taken").length;
+  const settledCount = bookings.filter(b => b.tokenStatus === "Settled").length;
   const tokenPaidAmt = bookings.reduce((sum, b) => sum + (b.tokenStatus === "Token Paid" ? (parseFloat(b.tokenAmount) || 0) : 0), 0);
   const confirmedCount = bookings.filter(b => b.bookingStatus === "Confirmed").length;
   const pendingCount = bookings.filter(b => b.bookingStatus === "Pending").length;
@@ -458,6 +465,12 @@ export default function DashboardPage() {
         </button>
         <button className={`btn btn-sm ${activeTab === "UNPAID" ? "btn-primary" : "btn-secondary"}`} onClick={() => setActiveTab("UNPAID")}>
           <i className="fa-solid fa-circle-xmark" style={{ color: '#c5221f' }}></i> Token Unpaid ({tokenUnpaidCount})
+        </button>
+        <button className={`btn btn-sm ${activeTab === "NOT_TAKEN" ? "btn-primary" : "btn-secondary"}`} onClick={() => setActiveTab("NOT_TAKEN")}>
+          Token Not Taken ({tokenNotTakenCount})
+        </button>
+        <button className={`btn btn-sm ${activeTab === "SETTLED" ? "btn-primary" : "btn-secondary"}`} onClick={() => setActiveTab("SETTLED")}>
+          Settled ({settledCount})
         </button>
         <button className={`btn btn-sm ${activeTab === "CONFIRMED" ? "btn-primary" : "btn-secondary"}`} onClick={() => setActiveTab("CONFIRMED")}>
           Confirmed ({confirmedCount})
@@ -679,12 +692,11 @@ export default function DashboardPage() {
                 <div className="form-group">
                   <label>Token Paid Status</label>
                   <div style={{ display: 'flex', gap: '8px' }}>
-                    <button type="button" className={`btn ${tokenStatus === "Token Paid" ? "btn-primary" : "btn-secondary"}`} style={{ flex: 1 }} onClick={() => setTokenStatus("Token Paid")}>
-                      Token Paid
-                    </button>
-                    <button type="button" className={`btn ${tokenStatus === "Token Not Paid" ? "btn-secondary" : "btn-secondary"}`} style={{ flex: 1, borderColor: tokenStatus === "Token Not Paid" ? '#c5221f' : '#dadce0', color: tokenStatus === "Token Not Paid" ? '#c5221f' : '#202124' }} onClick={() => setTokenStatus("Token Not Paid")}>
-                      Token Unpaid
-                    </button>
+                    {["Token Paid", "Token Not Taken", "Settled"].map((status) => (
+                      <button key={status} type="button" className={`btn ${tokenStatus === status ? "btn-primary" : "btn-secondary"}`} style={{ flex: 1 }} onClick={() => setTokenStatus(status)}>
+                        {status}
+                      </button>
+                    ))}
                   </div>
                 </div>
 
