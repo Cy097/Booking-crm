@@ -702,7 +702,7 @@ export default function DashboardPage() {
                 <div className="form-group">
                   <label>Token Paid Status</label>
                   <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-                    {["Token Paid", "Token Not Paid", "Token Not Taken", "Settled"].map((status) => {
+                    {["Token Paid", "Token Not Paid", "Token Not Taken"].map((status) => {
                       let btnColor = {};
                       if (status === "Token Not Paid") btnColor = { backgroundColor: tokenStatus === status ? '#c5221f' : '#fadbd8', color: tokenStatus === status ? 'white' : '#c5221f', borderColor: '#c5221f' };
                       else if (status === "Token Not Taken") btnColor = { backgroundColor: tokenStatus === status ? '#81c995' : '#d4edda', color: tokenStatus === status ? 'white' : '#137333', borderColor: '#81c995' };

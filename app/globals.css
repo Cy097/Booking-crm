@@ -542,9 +542,9 @@ body {
 }
 
 .token-settled {
-  background: var(--success-bg);
-  color: var(--success-color);
-  border: 1px solid var(--success-border);
+  background: #00e676;
+  color: #063b1f;
+  border: 1px solid #00b85a;
 }
 
 .status-pending {
