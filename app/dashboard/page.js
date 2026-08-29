@@ -42,6 +42,7 @@ export default function DashboardPage() {
   const [selectedDate, setSelectedDate] = useState(() => new Date().toISOString().split("T")[0]);
   const [selectedMonth, setSelectedMonth] = useState("ALL");
   const [currentTime, setCurrentTime] = useState(() => new Date());
+  const [theme, setTheme] = useState('light');
 
   // Modal State
   const [showModal, setShowModal] = useState(false);
@@ -66,6 +67,18 @@ export default function DashboardPage() {
     setToast({ msg, type });
     setTimeout(() => setToast(null), 3500);
   };
+
+  useEffect(() => {
+    const savedTheme = window.localStorage.getItem('crm-theme');
+    const preferredTheme = savedTheme || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+    setTheme(preferredTheme);
+    document.body.classList.toggle('dark-theme', preferredTheme === 'dark');
+  }, []);
+
+  useEffect(() => {
+    document.body.classList.toggle('dark-theme', theme === 'dark');
+    window.localStorage.setItem('crm-theme', theme);
+  }, [theme]);
 
   useEffect(() => {
     const clock = setInterval(() => setCurrentTime(new Date()), 1000);
@@ -419,7 +432,10 @@ export default function DashboardPage() {
               <span>Account</span>
             </button>
           )}
-          <button onClick={exportToExcel} className="btn btn-excel">
+          <button onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')} className="btn btn-secondary" aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}>
+    <i className={`fa-solid ${theme === 'dark' ? 'fa-sun' : 'fa-moon'}`}></i> {theme === 'dark' ? 'Light Mode' : 'Dark Mode'}
+  </button>
+  <button onClick={exportToExcel} className="btn btn-excel">
             <i className="fa-solid fa-file-excel"></i> Export Sheet (.xlsx)
           </button>
           <button onClick={openAddModal} className="btn btn-primary">

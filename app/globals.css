@@ -38,6 +38,48 @@
   --radius-full: 9999px;
 }
 
+body.dark-theme {
+  --bg-main: #202124;
+  --bg-card: #292a2d;
+  --border-color: #5f6368;
+  --border-grid: #3c4043;
+  --text-main: #f1f3f4;
+  --text-muted: #bdc1c6;
+  --google-green-mint: #174b31;
+  --google-green-border: #2b6f49;
+  --success-bg: #174b31;
+  --success-color: #81c995;
+  --success-border: #2b6f49;
+  --warning-bg: #5f4712;
+  --warning-color: #fdd663;
+  --warning-border: #8d6e1e;
+  --danger-bg: #5c2421;
+  --danger-color: #f28b82;
+  --danger-border: #8c3c36;
+}
+
+body.dark-theme .crm-header,
+body.dark-theme .card,
+body.dark-theme .modal-content,
+body.dark-theme .btn-secondary,
+body.dark-theme input,
+body.dark-theme select,
+body.dark-theme textarea {
+  background-color: var(--bg-card);
+  color: var(--text-main);
+}
+
+body.dark-theme .app-title,
+body.dark-theme .form-label,
+body.dark-theme label,
+body.dark-theme strong {
+  color: var(--text-main);
+}
+
+body.dark-theme .btn-secondary:hover {
+  background-color: #3c4043;
+}
+
 * {
   box-sizing: border-box;
   margin: 0;
