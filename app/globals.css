@@ -547,6 +547,25 @@ body {
   border: 1px solid #00b85a;
 }
 
+.status-rescheduled {
+  background: #f1f3f4;
+  color: #3c4043;
+  border: 1px solid #dadce0;
+}
+
+.digital-clock {
+  display: inline-flex;
+  align-items: center;
+  padding: 8px 12px;
+  border: 1px solid var(--border-color);
+  background: #f1f3f4;
+  color: var(--text-main);
+  border-radius: 6px;
+  font-family: 'Roboto Mono', monospace;
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+}
+
 .status-pending {
   background: var(--warning-bg);
   color: var(--warning-color);

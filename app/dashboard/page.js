@@ -40,6 +40,8 @@ export default function DashboardPage() {
   const [discountTypeFilter, setDiscountTypeFilter] = useState("ALL");
   const [sortBy, setSortBy] = useState("dateDesc");
   const [selectedDate, setSelectedDate] = useState(() => new Date().toISOString().split("T")[0]);
+  const [selectedMonth, setSelectedMonth] = useState("ALL");
+  const [currentTime, setCurrentTime] = useState(() => new Date());
 
   // Modal State
   const [showModal, setShowModal] = useState(false);
@@ -64,6 +66,11 @@ export default function DashboardPage() {
     setToast({ msg, type });
     setTimeout(() => setToast(null), 3500);
   };
+
+  useEffect(() => {
+    const clock = setInterval(() => setCurrentTime(new Date()), 1000);
+    return () => clearInterval(clock);
+  }, []);
 
   useEffect(() => {
     fetch('/api/auth/me')
@@ -206,7 +213,7 @@ export default function DashboardPage() {
   };
 
   const cycleBookingStatus = async (b) => {
-    const statuses = ["Confirmed", "Pending", "Not Confirmed"];
+    const statuses = ["Confirmed", "Pending", "Not Confirmed", "Cancelled", "Rescheduled", "Settled"];
     const nextStatus = statuses[(statuses.indexOf(b.bookingStatus) + 1) % statuses.length];
     try {
       const res = await fetch(`/api/bookings/${b.id}`, {
@@ -284,15 +291,30 @@ export default function DashboardPage() {
 
     const worksheet = window.XLSX.utils.json_to_sheet(rows);
     const workbook = window.XLSX.utils.book_new();
+    const range = window.XLSX.utils.decode_range(worksheet['!ref']);
+    worksheet['!cols'] = Object.keys(rows[0]).map((key) => ({ wch: Math.min(32, Math.max(14, key.length + 4)) }));
+    for (let col = range.s.c; col <= range.e.c; col += 1) {
+      const cell = worksheet[window.XLSX.utils.encode_cell({ r: 0, c: col })];
+      if (cell) cell.s = { fill: { fgColor: { rgb: '1F4E78' } }, font: { bold: true, color: { rgb: 'FFFFFF' } }, alignment: { horizontal: 'center' } };
+    }
+    for (let row = 1; row <= range.e.r; row += 1) {
+      for (let col = range.s.c; col <= range.e.c; col += 1) {
+        const cell = worksheet[window.XLSX.utils.encode_cell({ r: row, c: col })];
+        if (cell) cell.s = { fill: { fgColor: { rgb: row % 2 ? 'F3F6F8' : 'FFFFFF' } }, alignment: { vertical: 'center' } };
+      }
+    }
     window.XLSX.utils.book_append_sheet(workbook, worksheet, adminMode ? "Master All Users Ledger" : "My Bookings");
-    window.XLSX.writeFile(workbook, `${adminMode ? "Admin_All_Users" : "My_Personal"}_Bookings_${new Date().toISOString().split("T")[0]}.xlsx`);
+    const suffix = selectedMonth !== "ALL" ? selectedMonth : (selectedDate !== "ALL" ? selectedDate : new Date().toISOString().split("T")[0]);
+    window.XLSX.writeFile(workbook, `${adminMode ? "Admin_All_Users" : "My_Personal"}_Bookings_${suffix}.xlsx`);
     showNotification(`Exported ${filtered.length} records to Excel`, "success");
   };
 
   const getFilteredBookings = () => {
     let result = [...bookings];
 
-    if (selectedDate !== "ALL") {
+    if (selectedMonth !== "ALL") {
+      result = result.filter((b) => b.bookingDate?.startsWith(selectedMonth));
+    } else if (selectedDate !== "ALL") {
       result = result.filter((b) => b.bookingDate === selectedDate);
     }
 
@@ -344,7 +366,7 @@ export default function DashboardPage() {
   };
 
   const filteredBookings = getFilteredBookings();
-  const dateBookings = selectedDate === "ALL" ? bookings : bookings.filter((b) => b.bookingDate === selectedDate);
+  const dateBookings = selectedMonth !== "ALL" ? bookings.filter((b) => b.bookingDate?.startsWith(selectedMonth)) : (selectedDate === "ALL" ? bookings : bookings.filter((b) => b.bookingDate === selectedDate));
 
   const tokenPaidCount = dateBookings.filter(b => b.tokenStatus === "Token Paid").length;
   const tokenUnpaidCount = dateBookings.filter(b => b.tokenStatus === "Token Not Paid").length;
@@ -505,7 +527,11 @@ export default function DashboardPage() {
           <label htmlFor="bookingDateFilter" className="sr-only">Show bookings for date</label>
           <input id="bookingDateFilter" className="form-select" type="date" value={selectedDate === "ALL" ? "" : selectedDate} onChange={(e) => setSelectedDate(e.target.value || "ALL")} aria-label="Show bookings for date" />
           <button className={`btn btn-sm ${selectedDate === "ALL" ? "btn-primary" : "btn-secondary"}`} onClick={() => setSelectedDate("ALL")}>All Dates</button>
-          <button className="btn btn-secondary btn-sm" onClick={() => setSelectedDate(new Date().toISOString().split("T")[0])}>Today</button>
+          <button className="btn btn-secondary btn-sm" onClick={() => { setSelectedDate(new Date().toISOString().split("T")[0]); setSelectedMonth("ALL"); }}>Today</button>
+          <label htmlFor="bookingMonthFilter" className="sr-only">Show bookings for month</label>
+          <input id="bookingMonthFilter" className="form-select" type="month" value={selectedMonth === "ALL" ? "" : selectedMonth} onChange={(e) => { setSelectedMonth(e.target.value || "ALL"); setSelectedDate("ALL"); }} aria-label="Show bookings for month" />
+          <button className={`btn btn-sm ${selectedMonth === "ALL" ? "btn-secondary" : "btn-primary"}`} onClick={() => setSelectedMonth(new Date().toISOString().slice(0, 7))}>This Month</button>
+          <span className="digital-clock" aria-live="polite">{currentTime.toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit", second: "2-digit" })}</span>
           <select className="form-select" value={discountTypeFilter} onChange={(e) => setDiscountTypeFilter(e.target.value)}>
             <option value="ALL">All Discounts</option>
             <option value="NUMERICAL">Presets (50 to 200)</option>
@@ -526,7 +552,7 @@ export default function DashboardPage() {
             <option value="None">No Discount (0)</option>
           </select>
 
-          <button className="btn btn-secondary btn-sm" onClick={() => { setSearch(""); setActiveTab("ALL"); setDiscountTypeFilter("ALL"); setSelectedDate(new Date().toISOString().split("T")[0]); }}>
+          <button className="btn btn-secondary btn-sm" onClick={() => { setSearch(""); setActiveTab("ALL"); setDiscountTypeFilter("ALL"); setSelectedDate(new Date().toISOString().split("T")[0]); setSelectedMonth("ALL"); }}>
             <i className="fa-solid fa-filter-circle-xmark"></i> Clear Filters
           </button>
         </div>
@@ -600,7 +626,7 @@ export default function DashboardPage() {
   </span>
                     </td>
                     <td>
-                      <span className={`badge-status ${b.bookingStatus === "Confirmed" ? "status-confirmed" : (b.bookingStatus === "Pending" ? "status-pending" : "status-not-confirmed")}`} onClick={() => cycleBookingStatus(b)} title="Click to cycle status">
+                      <span className={`badge-status ${b.bookingStatus === "Confirmed" ? "status-confirmed" : (b.bookingStatus === "Pending" ? "status-pending" : ((b.bookingStatus === "Cancelled" || b.bookingStatus === "Not Confirmed") ? "status-not-confirmed" : (b.bookingStatus === "Settled" ? "token-settled" : "status-rescheduled")))}`} onClick={() => cycleBookingStatus(b)} title="Click to cycle status">
                         {b.bookingStatus}
                       </span>
                     </td>
@@ -732,6 +758,8 @@ export default function DashboardPage() {
                     <option value="Pending">Pending</option>
                     <option value="Not Confirmed">Not Confirmed</option>
                     <option value="Settled">Settled</option>
+                    <option value="Cancelled">Cancelled</option>
+                    <option value="Rescheduled">Rescheduled</option>
                   </select>
                 </div>
 
