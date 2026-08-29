@@ -4,6 +4,14 @@ import Script from 'next/script';
 export const metadata = {
   title: 'Master Booking Control Hub (Netlify Edition)',
   description: 'Multi-User Booking CRM & Token Ledger on Netlify',
+  icons: {
+    icon: [
+      { url: '/icon.svg', type: 'image/svg+xml' },
+      { url: '/icon-light-32x32.png', type: 'image/png', media: '(prefers-color-scheme: light)' },
+      { url: '/icon-dark-32x32.png', type: 'image/png', media: '(prefers-color-scheme: dark)' },
+    ],
+    apple: '/apple-icon.png',
+  },
 };
 
 export default function RootLayout({ children }) {
