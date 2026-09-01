@@ -269,13 +269,14 @@ export default function DashboardPage() {
     }
 
     const filtered = getFilteredBookings();
-    if (filtered.length === 0) {
-      showNotification("No records available to export.", "danger");
+    const exportBookings = filtered.filter((b) => b.bookingType !== "potential");
+    if (exportBookings.length === 0) {
+      showNotification("No confirmed bookings available to export.", "danger");
       return;
     }
 
     let totalTokenAmt = 0;
-    const rows = filtered.map((b, idx) => {
+    const rows = exportBookings.map((b, idx) => {
       totalTokenAmt += (b.tokenStatus === "Token Paid" ? (parseFloat(b.tokenAmount) || 0) : 0);
       return {
         "S.No": idx + 1,
@@ -295,7 +296,7 @@ export default function DashboardPage() {
     rows.push({});
     rows.push({
       "S.No": "TOTALS",
-      "Booking ID": `Count: ${filtered.length}`,
+      "Booking ID": `Count: ${exportBookings.length}`,
       "Phone Number": "",
       "Booking Date": "",
       "Booking Details": adminMode ? "ADMIN MASTER SYSTEM SUMMARY" : "MY LEDGER SUMMARY",
@@ -324,7 +325,7 @@ export default function DashboardPage() {
     window.XLSX.utils.book_append_sheet(workbook, worksheet, adminMode ? "Master All Users Ledger" : "My Bookings");
     const suffix = selectedMonth !== "ALL" ? selectedMonth : (selectedDate !== "ALL" ? selectedDate : new Date().toISOString().split("T")[0]);
     window.XLSX.writeFile(workbook, `${adminMode ? "Admin_All_Users" : "My_Personal"}_Bookings_${suffix}.xlsx`);
-    showNotification(`Exported ${filtered.length} records to Excel`, "success");
+    showNotification(`Exported ${exportBookings.length} confirmed bookings to Excel`, "success");
   };
 
   const getFilteredBookings = () => {
