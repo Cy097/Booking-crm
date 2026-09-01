@@ -42,7 +42,7 @@ export default function DashboardPage() {
   const [selectedDate, setSelectedDate] = useState(() => new Date().toISOString().split("T")[0]);
   const [selectedMonth, setSelectedMonth] = useState("ALL");
   const [currentTime, setCurrentTime] = useState(() => new Date());
-  const [theme, setTheme] = useState('light');
+  const [theme, setTheme] = useState(() => (typeof document !== 'undefined' ? document.documentElement.dataset.theme || 'light' : 'light'));
 
   // Modal State
   const [showModal, setShowModal] = useState(false);
@@ -69,14 +69,12 @@ export default function DashboardPage() {
   };
 
   useEffect(() => {
-    const savedTheme = window.localStorage.getItem('crm-theme');
-    const preferredTheme = savedTheme || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
-    setTheme(preferredTheme);
-    document.body.classList.toggle('dark-theme', preferredTheme === 'dark');
-  }, []);
+    const preferredTheme = document.documentElement.dataset.theme || 'light';
+    if (preferredTheme !== theme) setTheme(preferredTheme);
+  }, [theme]);
 
   useEffect(() => {
-    document.body.classList.toggle('dark-theme', theme === 'dark');
+    document.documentElement.dataset.theme = theme;
     window.localStorage.setItem('crm-theme', theme);
   }, [theme]);
 
