@@ -59,6 +59,9 @@ export default function DashboardPage() {
   const [tokenAmount, setTokenAmount] = useState("");
   const [bookingStatus, setBookingStatus] = useState("Confirmed");
   const [notes, setNotes] = useState("");
+  const [bookingType, setBookingType] = useState("confirmed");
+  const [callbackDate, setCallbackDate] = useState("");
+  const [callbackReminder, setCallbackReminder] = useState(false);
   
   // Toasts
   const [toast, setToast] = useState(null);
@@ -133,6 +136,9 @@ export default function DashboardPage() {
     setTokenStatus("Token Paid");
     setTokenAmount("");
     setBookingStatus("Confirmed");
+    setBookingType("confirmed");
+    setCallbackDate("");
+    setCallbackReminder(false);
     setNotes("");
     setShowModal(true);
   };
@@ -147,6 +153,9 @@ export default function DashboardPage() {
     setTokenStatus(b.tokenStatus || "Token Paid");
     setTokenAmount(b.tokenAmount || "");
     setBookingStatus(b.bookingStatus || "Confirmed");
+    setBookingType(b.bookingType || "confirmed");
+    setCallbackDate(b.callbackDate || "");
+    setCallbackReminder(Boolean(b.callbackReminder));
     setNotes(b.notes || "");
     setShowModal(true);
   };
@@ -167,6 +176,9 @@ export default function DashboardPage() {
       tokenStatus,
       tokenAmount: parseFloat(tokenAmount) || 0,
       bookingStatus,
+      bookingType,
+      callbackDate,
+      callbackReminder,
       notes,
       isAdmin: adminMode
     };
@@ -318,7 +330,9 @@ export default function DashboardPage() {
   const getFilteredBookings = () => {
     let result = [...bookings];
 
-    if (selectedMonth !== "ALL") {
+    if (activeTab === "POTENTIAL") {
+      result = result.filter((b) => b.bookingType === "potential");
+    } else if (selectedMonth !== "ALL") {
       result = result.filter((b) => b.bookingDate?.startsWith(selectedMonth));
     } else if (selectedDate !== "ALL") {
       result = result.filter((b) => b.bookingDate === selectedDate);
@@ -497,6 +511,9 @@ export default function DashboardPage() {
         <button className={`btn btn-sm ${activeTab === "ALL" ? "btn-primary" : "btn-secondary"}`} onClick={() => setActiveTab("ALL")}>
           All Bookings ({bookings.length})
         </button>
+        <button className={`btn btn-sm ${activeTab === "POTENTIAL" ? "btn-primary" : "btn-secondary"}`} onClick={() => setActiveTab("POTENTIAL")}>
+          Potential / Callbacks ({bookings.filter(b => b.bookingType === "potential").length})
+        </button>
         <button className={`btn btn-sm ${activeTab === "PAID" ? "btn-primary" : "btn-secondary"}`} onClick={() => setActiveTab("PAID")}>
           <i className="fa-solid fa-circle-check" style={{ color: '#137333' }}></i> Token Paid ({tokenPaidCount})
         </button>
@@ -612,9 +629,10 @@ export default function DashboardPage() {
                     <td>
                       <div>
                         {b.customId && <span className="booking-id-badge">{b.customId}</span>}
-                        <div style={{ fontWeight: '600' }}>
-                          <i className="fa-solid fa-phone" style={{ marginRight: '6px', color: '#0f9d58' }}></i> {b.phone}
-                        </div>
+          <div style={{ fontWeight: '600' }}>
+            <i className="fa-solid fa-phone" style={{ marginRight: '6px', color: '#0f9d58' }}></i> {b.phone}
+          </div>
+          {b.callbackReminder && <span className="callback-reminder"><i className="fa-solid fa-bell"></i> Call back {b.callbackDate || "soon"}</span>}
                       </div>
                     </td>
                     <td>
@@ -772,6 +790,20 @@ export default function DashboardPage() {
                   </select>
                 </div>
 
+                <div className="form-group full-width">
+                  <label htmlFor="bookingType">Record Type</label>
+                  <select id="bookingType" className="form-select" value={bookingType} onChange={(e) => setBookingType(e.target.value)}>
+                    <option value="confirmed">Confirmed Booking</option>
+                    <option value="potential">Potential Booking / Callback</option>
+                  </select>
+                </div>
+                {bookingType === "potential" && (
+                  <div className="form-group full-width callback-panel">
+                    <label htmlFor="callbackDate">Callback reminder date</label>
+                    <input id="callbackDate" className="form-select" type="date" value={callbackDate} onChange={(e) => setCallbackDate(e.target.value)} />
+                    <label className="checkbox-row"><input type="checkbox" checked={callbackReminder} onChange={(e) => setCallbackReminder(e.target.checked)} /> Remind me to call back</label>
+                  </div>
+                )}
                 <div className="form-group full-width">
                   <label htmlFor="notes">Notes / Remarks</label>
                   <textarea id="notes" rows={2} placeholder="Add any special requirements..." value={notes} onChange={(e) => setNotes(e.target.value)}></textarea>

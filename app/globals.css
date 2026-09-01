@@ -571,6 +571,30 @@ body {
   font-size: 0.88rem;
 }
 
+.callback-panel {
+  background: var(--success-bg);
+  border: 1px dashed var(--success-border);
+  padding: 12px;
+  border-radius: 8px;
+}
+
+.checkbox-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.callback-reminder {
+  display: inline-flex;
+  gap: 5px;
+  align-items: center;
+  margin-top: 5px;
+  color: var(--warning-color);
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
 .badge-status {
   display: inline-flex;
   align-items: center;
