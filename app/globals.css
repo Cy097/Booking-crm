@@ -98,6 +98,11 @@ html[data-theme='dark'] .btn-secondary:hover {
   padding: 0;
 }
 
+html.theme-switching *,
+html.theme-switching {
+  transition: none !important;
+}
+
 body {
   font-family: var(--font-body);
   background-color: var(--bg-main);

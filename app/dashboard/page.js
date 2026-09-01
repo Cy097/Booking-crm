@@ -69,11 +69,6 @@ export default function DashboardPage() {
   };
 
   useEffect(() => {
-    const preferredTheme = document.documentElement.dataset.theme || 'light';
-    if (preferredTheme !== theme) setTheme(preferredTheme);
-  }, [theme]);
-
-  useEffect(() => {
     document.documentElement.dataset.theme = theme;
     window.localStorage.setItem('crm-theme', theme);
   }, [theme]);
@@ -430,7 +425,7 @@ export default function DashboardPage() {
               <span>Account</span>
             </button>
           )}
-          <button onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')} className="btn btn-secondary" aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}>
+          <button onClick={() => { const nextTheme = theme === 'dark' ? 'light' : 'dark'; document.documentElement.classList.add('theme-switching'); document.documentElement.dataset.theme = nextTheme; setTheme(nextTheme); requestAnimationFrame(() => document.documentElement.classList.remove('theme-switching')); }} className="btn btn-secondary" aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}>
     <i className={`fa-solid ${theme === 'dark' ? 'fa-sun' : 'fa-moon'}`}></i> {theme === 'dark' ? 'Light Mode' : 'Dark Mode'}
   </button>
   <button onClick={exportToExcel} className="btn btn-excel">
