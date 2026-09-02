@@ -387,6 +387,10 @@ export default function DashboardPage() {
   };
 
   const filteredBookings = getFilteredBookings();
+  const todayKey = new Date().toISOString().split("T")[0];
+  const callbackBookings = bookings
+    .filter((b) => b.bookingType === "potential" && b.callbackReminder)
+    .sort((a, b) => (a.callbackDate || "9999-12-31").localeCompare(b.callbackDate || "9999-12-31"));
   const dateBookings = selectedMonth !== "ALL" ? bookings.filter((b) => b.bookingDate?.startsWith(selectedMonth)) : (selectedDate === "ALL" ? bookings : bookings.filter((b) => b.bookingDate === selectedDate));
 
   const tokenPaidCount = dateBookings.filter(b => b.tokenStatus === "Token Paid").length;
@@ -583,6 +587,43 @@ export default function DashboardPage() {
             <i className="fa-solid fa-filter-circle-xmark"></i> Clear Filters
           </button>
         </div>
+      </section>
+
+      {/* Callback tracker */}
+      <section className="callback-tracker" aria-labelledby="callback-tracker-title">
+        <div className="callback-tracker-header">
+          <div>
+            <span className="section-kicker"><i className="fa-solid fa-phone-volume"></i> Follow-up queue</span>
+            <h2 id="callback-tracker-title">Callback Tracker</h2>
+            <p>Potential bookings marked for a follow-up call.</p>
+          </div>
+          <strong>{callbackBookings.length} reminder{callbackBookings.length === 1 ? "" : "s"}</strong>
+        </div>
+        {callbackBookings.length === 0 ? (
+          <div className="callback-empty"><i className="fa-solid fa-circle-check"></i> No callback reminders are waiting.</div>
+        ) : (
+          <div className="callback-list">
+            {callbackBookings.map((b) => {
+              const isDue = b.callbackDate && b.callbackDate <= todayKey;
+              return (
+                <article className={`callback-item ${isDue ? "callback-due" : ""}`} key={`callback-${b.id}`}>
+                  <div className="callback-item-main">
+                    <strong>{b.name || b.customerName || "Potential customer"}</strong>
+                    <span>{b.phone || "No phone number"} · Booking {b.bookingDate || "date not set"}</span>
+                    {b.notes && <small>{b.notes}</small>}
+                  </div>
+                  <div className="callback-item-meta">
+                    <span><i className="fa-solid fa-calendar-day"></i> {isDue ? "Due now" : `Call on ${b.callbackDate || "soon"}`}</span>
+                    <div className="callback-actions">
+                      {b.phone && <a className="btn btn-secondary btn-sm" href={`tel:${b.phone}`}><i className="fa-solid fa-phone"></i> Call</a>}
+                      <button className="btn btn-secondary btn-sm" onClick={() => openEditModal(b)}><i className="fa-solid fa-pen"></i> Open</button>
+                    </div>
+                  </div>
+                </article>
+              );
+            })}
+          </div>
+        )}
       </section>
 
       {/* Table */}

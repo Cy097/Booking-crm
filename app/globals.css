@@ -595,6 +595,46 @@ body {
   font-weight: 600;
 }
 
+.callback-tracker {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  padding: 18px;
+}
+
+.callback-tracker-header,
+.callback-item,
+.callback-item-meta,
+.callback-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.callback-tracker-header {
+  border-bottom: 1px solid var(--border-grid);
+  padding-bottom: 12px;
+  margin-bottom: 12px;
+}
+
+.callback-tracker h2 { margin: 4px 0; color: var(--text-main); }
+.callback-tracker p,
+.callback-item-main span,
+.callback-item-main small { color: var(--text-muted); display: block; }
+.callback-list { display: flex; flex-direction: column; gap: 8px; }
+.callback-item { background: var(--input-bg); border-radius: 8px; padding: 12px; }
+.callback-item.callback-due { border-left: 4px solid var(--danger-border); }
+.callback-item-main { min-width: 0; }
+.callback-item-main strong { color: var(--text-main); }
+.callback-item-meta { flex-shrink: 0; flex-direction: column; align-items: flex-end; color: var(--text-muted); font-size: 0.82rem; }
+.callback-empty { padding: 20px; color: var(--success-color); text-align: center; }
+
+@media (max-width: 700px) {
+  .callback-item, .callback-tracker-header { align-items: flex-start; flex-direction: column; }
+  .callback-item-meta { align-items: flex-start; }
+}
+
 .badge-status {
   display: inline-flex;
   align-items: center;
