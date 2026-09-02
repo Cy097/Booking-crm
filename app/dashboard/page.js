@@ -370,9 +370,11 @@ export default function DashboardPage() {
       if (discountTypeFilter === "NUMERICAL") {
         const presets = ["50", "60", "75", "85", "100", "115", "125", "150", "175", "200"];
         result = result.filter(b => presets.includes(b.discountType));
-      } else if (discountTypeFilter === "GROUP") {
-        result = result.filter(b => b.discountType && b.discountType.startsWith("Group offer"));
-      } else {
+  } else if (discountTypeFilter === "GROUP") {
+  result = result.filter(b => b.discountType && b.discountType.startsWith("Group offer"));
+  } else if (discountTypeFilter === "Big Buffet") {
+  result = result.filter(b => b.discountType === "Big Buffet");
+  } else {
         result = result.filter(b => b.discountType === discountTypeFilter);
       }
     }
@@ -401,6 +403,7 @@ export default function DashboardPage() {
   const confirmedCount = dateBookings.filter(b => b.bookingStatus === "Confirmed").length;
   const pendingCount = dateBookings.filter(b => b.bookingStatus === "Pending").length;
   const groupOfferCount = dateBookings.filter(b => b.discountType && b.discountType.startsWith("Group offer")).length;
+  const bigBuffetCount = dateBookings.filter(b => b.discountType === "Big Buffet").length;
 
   if (loading) {
     return (
@@ -567,6 +570,7 @@ export default function DashboardPage() {
             <option value="ALL">All Discounts</option>
             <option value="NUMERICAL">Presets (50 to 200)</option>
             <option value="GROUP">Group Offers (4, 6, 8)</option>
+  <option value="Big Buffet">Big Buffet</option>
             <option value="50">50</option>
             <option value="60">60</option>
             <option value="75">75</option>
@@ -786,7 +790,8 @@ export default function DashboardPage() {
                       <option value="175">₹175 Discount</option>
                       <option value="200">₹200 Discount</option>
                     </optgroup>
-                    <optgroup label="Special Group Offers">
+                    <optgroup label="Special Offers">
+                      <option value="Big Buffet">Big Buffet</option>
                       <option value="Group offer for 4">Group offer for 4</option>
                       <option value="Group offer for 6">Group offer for 6</option>
                       <option value="Group offer for 8">Group offer for 8</option>
