@@ -61,6 +61,7 @@ export default function DashboardPage() {
   const [notes, setNotes] = useState("");
   const [bookingType, setBookingType] = useState("confirmed");
   const [callbackDate, setCallbackDate] = useState("");
+  const [callbackTime, setCallbackTime] = useState("");
   const [callbackReminder, setCallbackReminder] = useState(false);
   
   // Toasts
@@ -138,6 +139,7 @@ export default function DashboardPage() {
     setBookingStatus("Confirmed");
     setBookingType("confirmed");
     setCallbackDate("");
+    setCallbackTime("");
     setCallbackReminder(false);
     setNotes("");
     setShowModal(true);
@@ -155,6 +157,7 @@ export default function DashboardPage() {
     setBookingStatus(b.bookingStatus || "Confirmed");
     setBookingType(b.bookingType || "confirmed");
     setCallbackDate(b.callbackDate || "");
+    setCallbackTime(b.callbackTime || "");
     setCallbackReminder(Boolean(b.callbackReminder));
     setNotes(b.notes || "");
     setShowModal(true);
@@ -178,6 +181,7 @@ export default function DashboardPage() {
       bookingStatus,
       bookingType,
       callbackDate,
+      callbackTime,
       callbackReminder,
       notes,
       isAdmin: adminMode
@@ -392,7 +396,7 @@ export default function DashboardPage() {
   const todayKey = new Date().toISOString().split("T")[0];
   const callbackBookings = bookings
     .filter((b) => b.bookingType === "potential" && b.callbackReminder)
-    .sort((a, b) => (a.callbackDate || "9999-12-31").localeCompare(b.callbackDate || "9999-12-31"));
+    .sort((a, b) => `${a.callbackDate || "9999-12-31"}T${a.callbackTime || "23:59"}`.localeCompare(`${b.callbackDate || "9999-12-31"}T${b.callbackTime || "23:59"}`));
   const dateBookings = selectedMonth !== "ALL" ? bookings.filter((b) => b.bookingDate?.startsWith(selectedMonth)) : (selectedDate === "ALL" ? bookings : bookings.filter((b) => b.bookingDate === selectedDate));
 
   const tokenPaidCount = dateBookings.filter(b => b.tokenStatus === "Token Paid").length;
@@ -608,7 +612,8 @@ export default function DashboardPage() {
         ) : (
           <div className="callback-list">
             {callbackBookings.map((b) => {
-              const isDue = b.callbackDate && b.callbackDate <= todayKey;
+              const callbackTimestamp = b.callbackDate ? new Date(`${b.callbackDate}T${b.callbackTime || "00:00"}`) : null;
+              const isDue = callbackTimestamp && callbackTimestamp <= new Date();
               return (
                 <article className={`callback-item ${isDue ? "callback-due" : ""}`} key={`callback-${b.id}`}>
                   <div className="callback-item-main">
@@ -617,7 +622,7 @@ export default function DashboardPage() {
                     {b.notes && <small>{b.notes}</small>}
                   </div>
                   <div className="callback-item-meta">
-                    <span><i className="fa-solid fa-calendar-day"></i> {isDue ? "Due now" : `Call on ${b.callbackDate || "soon"}`}</span>
+                    <span><i className="fa-solid fa-calendar-day"></i> {isDue ? "Due now" : `Call on ${b.callbackDate || "soon"}${b.callbackTime ? ` at ${b.callbackTime}` : ""}`}</span>
                     <div className="callback-actions">
                       {b.phone && <a className="btn btn-secondary btn-sm" href={`tel:${b.phone}`}><i className="fa-solid fa-phone"></i> Call</a>}
                       <button className="btn btn-secondary btn-sm" onClick={() => openEditModal(b)}><i className="fa-solid fa-pen"></i> Open</button>
@@ -848,7 +853,11 @@ export default function DashboardPage() {
                   <div className="form-group full-width callback-panel">
                     <label htmlFor="callbackDate">Callback reminder date</label>
                     <input id="callbackDate" className="form-select" type="date" value={callbackDate} onChange={(e) => setCallbackDate(e.target.value)} />
-                    <label className="checkbox-row"><input type="checkbox" checked={callbackReminder} onChange={(e) => setCallbackReminder(e.target.checked)} /> Remind me to call back</label>
+                    <label htmlFor="callbackTime">Time to call</label>
+                    <input id="callbackTime" className="form-select" type="time" value={callbackTime} onChange={(e) => setCallbackTime(e.target.value)} />
+                    <button type="button" className={`btn btn-sm ${callbackReminder ? "btn-primary" : "btn-secondary"}`} onClick={() => setCallbackReminder((enabled) => !enabled)} aria-pressed={callbackReminder}>
+                      <i className={`fa-solid ${callbackReminder ? "fa-bell" : "fa-bell-slash"}`}></i> {callbackReminder ? "Callback Reminder On" : "Add Call Back Reminder"}
+                    </button>
                   </div>
                 )}
                 <div className="form-group full-width">
