@@ -47,6 +47,10 @@ export default function DashboardPage() {
   // Modal State
   const [showModal, setShowModal] = useState(false);
   const [showAccountModal, setShowAccountModal] = useState(false);
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [changingPassword, setChangingPassword] = useState(false);
   const [editingBooking, setEditingBooking] = useState(null);
   
   // Form State
@@ -125,6 +129,25 @@ export default function DashboardPage() {
   const handleLogout = async () => {
     await fetch('/api/auth/logout', { method: 'POST' });
     router.replace('/login');
+  };
+
+  const handlePasswordChange = async (event) => {
+    event.preventDefault();
+    if (newPassword !== confirmPassword) return showNotification('New passwords do not match.', 'danger');
+    setChangingPassword(true);
+    try {
+      const response = await fetch('/api/auth/change-password', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ currentPassword, newPassword }) });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || 'Unable to change password.');
+      setCurrentPassword('');
+      setNewPassword('');
+      setConfirmPassword('');
+      showNotification('Password changed successfully.', 'success');
+    } catch (error) {
+      showNotification(error.message, 'danger');
+    } finally {
+      setChangingPassword(false);
+    }
   };
 
   const openAddModal = () => {
@@ -919,6 +942,17 @@ export default function DashboardPage() {
                   </strong>
                 </div>
               </div>
+
+              <form className="password-change-panel" onSubmit={handlePasswordChange}>
+                <h3><i className="fa-solid fa-key"></i> Change Password</h3>
+                <label htmlFor="currentPassword">Current password</label>
+                <input id="currentPassword" type="password" value={currentPassword} onChange={(event) => setCurrentPassword(event.target.value)} required autoComplete="current-password" />
+                <label htmlFor="newPassword">New password</label>
+                <input id="newPassword" type="password" value={newPassword} onChange={(event) => setNewPassword(event.target.value)} required minLength={8} autoComplete="new-password" />
+                <label htmlFor="confirmPassword">Confirm new password</label>
+                <input id="confirmPassword" type="password" value={confirmPassword} onChange={(event) => setConfirmPassword(event.target.value)} required minLength={8} autoComplete="new-password" />
+                <button className="btn btn-primary" type="submit" disabled={changingPassword}>{changingPassword ? 'Changing…' : 'Change Password'}</button>
+              </form>
             </div>
             <div className="modal-footer">
               <button className="btn btn-secondary" onClick={() => setShowAccountModal(false)}>Close</button>

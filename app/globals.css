@@ -635,6 +635,32 @@ body {
   .callback-item-meta { align-items: flex-start; }
 }
 
+.password-change-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 18px;
+  padding: 16px;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  background: var(--input-bg);
+}
+
+.password-change-panel h3 {
+  margin-bottom: 4px;
+  color: var(--text-main);
+}
+
+.password-change-panel label {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.password-change-panel input {
+  width: 100%;
+}
+
 .badge-status {
   display: inline-flex;
   align-items: center;
