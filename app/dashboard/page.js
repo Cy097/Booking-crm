@@ -47,6 +47,8 @@ export default function DashboardPage() {
   // Modal State
   const [showModal, setShowModal] = useState(false);
   const [showAccountModal, setShowAccountModal] = useState(false);
+  const [showAccountManagement, setShowAccountManagement] = useState(false);
+  const [managedUsers, setManagedUsers] = useState([]);
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -129,6 +131,14 @@ export default function DashboardPage() {
   const handleLogout = async () => {
     await fetch('/api/auth/logout', { method: 'POST' });
     router.replace('/login');
+  };
+
+  const openAccountManagement = async () => {
+    const response = await fetch('/api/admin/users');
+    if (!response.ok) return showNotification('Admin access required.', 'danger');
+    const data = await response.json();
+    setManagedUsers(data.users || []);
+    setShowAccountManagement(true);
   };
 
   const handlePasswordChange = async (event) => {
@@ -467,6 +477,12 @@ export default function DashboardPage() {
             <i className={`fa-solid ${adminMode ? "fa-user" : "fa-crown"}`}></i>
             {adminMode ? "Switch to Personal View" : "👑 Admin Super Access"}
           </button>
+
+          {adminMode && user?.role === 'admin' && (
+            <button onClick={openAccountManagement} className="btn btn-secondary" title="Manage accounts">
+              <i className="fa-solid fa-users-gear"></i> Manage Accounts
+            </button>
+          )}
 
           {user && (
             <button onClick={() => setShowAccountModal(true)} className="btn btn-secondary" title="View Account Profile">
@@ -959,6 +975,34 @@ export default function DashboardPage() {
               <button className="btn btn-primary" onClick={handleLogout}>
                 <i className="fa-solid fa-right-from-bracket"></i> Sign Out
               </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showAccountManagement && (
+        <div className="modal-overlay">
+          <div className="modal-card account-management-card">
+            <div className="modal-header">
+              <h2><i className="fa-solid fa-users-gear"></i> Account Management</h2>
+              <button className="btn-close" onClick={() => setShowAccountManagement(false)}>&times;</button>
+            </div>
+            <div className="modal-body">
+              <p className="text-muted">Review registered accounts and their access roles. Passwords are never displayed.</p>
+              <div className="account-list">
+                {managedUsers.map((managedUser) => (
+                  <div className="account-row" key={managedUser.id || managedUser.email}>
+                    <div>
+                      <strong>{managedUser.name || 'Unnamed user'}</strong>
+                      <span>{managedUser.email}</span>
+                    </div>
+                    <span className={`badge-tag ${managedUser.role === 'admin' ? 'account-role-admin' : ''}`}>{managedUser.role || 'user'}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div className="modal-footer">
+              <button className="btn btn-secondary" onClick={() => setShowAccountManagement(false)}>Close</button>
             </div>
           </div>
         </div>

@@ -661,6 +661,14 @@ body {
   width: 100%;
 }
 
+.account-management-card { max-width: 680px; }
+.account-list { display: flex; flex-direction: column; gap: 8px; margin-top: 16px; }
+.account-row { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 12px; background: var(--input-bg); border: 1px solid var(--border-grid); border-radius: 8px; }
+.account-row strong, .account-row span { display: block; }
+.account-row span { color: var(--text-muted); font-size: 0.85rem; }
+.account-row .account-role-admin { color: var(--warning-color); background: var(--warning-bg); }
+.text-muted { color: var(--text-muted); }
+
 .badge-status {
   display: inline-flex;
   align-items: center;
