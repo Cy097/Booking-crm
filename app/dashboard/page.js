@@ -547,34 +547,34 @@ export default function DashboardPage() {
 
       {/* Filter Pills */}
       <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', alignItems: 'center' }}>
-        <span style={{ fontSize: '0.82rem', fontWeight: '600', color: '#5f6368', marginRight: '6px' }}>
+        <span style={{ fontSize: '0.82rem', fontWeight: '600', color: 'var(--calm-dim)', marginRight: '6px' }}>
           <i className="fa-solid fa-filter"></i> Quick Filter:
         </span>
-        <button className={`btn btn-sm ${activeTab === "ALL" ? "btn-primary" : "btn-secondary"}`} onClick={() => setActiveTab("ALL")}>
+        <button className={`tab ${activeTab === "ALL" ? "active" : ""}`} aria-pressed={activeTab === "ALL"} onClick={() => setActiveTab("ALL")}>
           All Bookings ({bookings.length})
         </button>
-        <button className={`btn btn-sm ${activeTab === "POTENTIAL" ? "btn-primary" : "btn-secondary"}`} onClick={() => setActiveTab("POTENTIAL")}>
+        <button className={`tab ${activeTab === "POTENTIAL" ? "active" : ""}`} aria-pressed={activeTab === "POTENTIAL"} onClick={() => setActiveTab("POTENTIAL")}>
           Potential / Callbacks ({bookings.filter(b => b.bookingType === "potential").length})
         </button>
-        <button className={`btn btn-sm ${activeTab === "PAID" ? "btn-primary" : "btn-secondary"}`} onClick={() => setActiveTab("PAID")}>
-          <i className="fa-solid fa-circle-check" style={{ color: '#137333' }}></i> Token Paid ({tokenPaidCount})
+        <button className={`tab ${activeTab === "PAID" ? "active" : ""}`} aria-pressed={activeTab === "PAID"} onClick={() => setActiveTab("PAID")}>
+          <i className="fa-solid fa-circle-check" style={{ color: 'var(--calm-green)' }}></i> Token Paid ({tokenPaidCount})
         </button>
-        <button className={`btn btn-sm ${activeTab === "UNPAID" ? "btn-primary" : "btn-secondary"}`} onClick={() => setActiveTab("UNPAID")}>
-          <i className="fa-solid fa-circle-xmark" style={{ color: '#c5221f' }}></i> Token Unpaid ({tokenUnpaidCount})
+        <button className={`tab ${activeTab === "UNPAID" ? "active" : ""}`} aria-pressed={activeTab === "UNPAID"} onClick={() => setActiveTab("UNPAID")}>
+          <i className="fa-solid fa-circle-xmark" style={{ color: '#d98a80' }}></i> Token Unpaid ({tokenUnpaidCount})
         </button>
-        <button className={`btn btn-sm ${activeTab === "NOT_TAKEN" ? "btn-primary" : "btn-secondary"}`} onClick={() => setActiveTab("NOT_TAKEN")}>
+        <button className={`tab ${activeTab === "NOT_TAKEN" ? "active" : ""}`} aria-pressed={activeTab === "NOT_TAKEN"} onClick={() => setActiveTab("NOT_TAKEN")}>
           Token Not Taken ({tokenNotTakenCount})
         </button>
-        <button className={`btn btn-sm ${activeTab === "SETTLED" ? "btn-primary" : "btn-secondary"}`} onClick={() => setActiveTab("SETTLED")}>
+        <button className={`tab ${activeTab === "SETTLED" ? "active" : ""}`} aria-pressed={activeTab === "SETTLED"} onClick={() => setActiveTab("SETTLED")}>
           Settled ({settledCount})
         </button>
-        <button className={`btn btn-sm ${activeTab === "CONFIRMED" ? "btn-primary" : "btn-secondary"}`} onClick={() => setActiveTab("CONFIRMED")}>
+        <button className={`tab ${activeTab === "CONFIRMED" ? "active" : ""}`} aria-pressed={activeTab === "CONFIRMED"} onClick={() => setActiveTab("CONFIRMED")}>
           Confirmed ({confirmedCount})
         </button>
-        <button className={`btn btn-sm ${activeTab === "PENDING" ? "btn-primary" : "btn-secondary"}`} onClick={() => setActiveTab("PENDING")}>
+        <button className={`tab ${activeTab === "PENDING" ? "active" : ""}`} aria-pressed={activeTab === "PENDING"} onClick={() => setActiveTab("PENDING")}>
           Pending ({pendingCount})
         </button>
-        <button className={`btn btn-sm ${activeTab === "GROUP" ? "btn-primary" : "btn-secondary"}`} onClick={() => setActiveTab("GROUP")}>
+        <button className={`tab ${activeTab === "GROUP" ? "active" : ""}`} aria-pressed={activeTab === "GROUP"} onClick={() => setActiveTab("GROUP")}>
           Group Offers ({groupOfferCount})
         </button>
       </div>
