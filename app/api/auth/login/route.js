@@ -39,6 +39,10 @@ export async function POST(request) {
 
     return response;
   } catch (err) {
-    return NextResponse.json({ error: err.message }, { status: 500 });
+    console.error('[v0] Login database error:', err);
+    return NextResponse.json(
+      { error: 'Login is temporarily unavailable. Check the MongoDB Atlas connection and try again.' },
+      { status: 503 }
+    );
   }
 }

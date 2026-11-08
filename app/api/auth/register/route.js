@@ -37,6 +37,13 @@ export async function POST(request) {
 
     return response;
   } catch (err) {
-    return NextResponse.json({ error: err.message }, { status: 500 });
+    console.error('[v0] Registration database error:', err);
+    if (err?.code === 'USER_EXISTS') {
+      return NextResponse.json({ error: 'User account already exists with this email' }, { status: 409 });
+    }
+    return NextResponse.json(
+      { error: 'Registration is temporarily unavailable. Check the MongoDB Atlas connection and try again.' },
+      { status: 503 }
+    );
   }
 }

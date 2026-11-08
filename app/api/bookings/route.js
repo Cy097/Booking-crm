@@ -15,7 +15,11 @@ export async function GET(request) {
   }
 
   const { searchParams } = new URL(request.url);
-  const isAdminView = searchParams.get('admin') === 'true' && (user.role === 'admin' || true);
+  const requestedAdminView = searchParams.get('admin') === 'true';
+  if (requestedAdminView && user.role !== 'admin') {
+    return NextResponse.json({ error: 'Admin access required' }, { status: 403 });
+  }
+  const isAdminView = requestedAdminView;
 
   const bookings = isAdminView ? await getAllBookingsAdmin() : await getUserBookings(user.userId);
   const isCloudConnected = Boolean(process.env.MONGODB_URI);

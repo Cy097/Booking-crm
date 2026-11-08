@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="CSV file">
+  <rect width="64" height="64" rx="14" fill="#0f9d58"/>
+  <path d="M18 9h20l10 10v36H18z" fill="#fff"/>
+  <path d="M38 9v12h10" fill="#c8e6c9"/>
+  <path d="M23 29h24M23 37h24M23 45h24" stroke="#0f9d58" stroke-width="3" stroke-linecap="round"/>
+  <path d="M31 25v25M39 25v25" stroke="#0f9d58" stroke-width="2" opacity=".7"/>
+  <text x="32" y="57" text-anchor="middle" font-family="Arial,sans-serif" font-size="8" font-weight="700" fill="#fff">CSV</text>
+</svg>

@@ -39,10 +39,19 @@ export default function DashboardPage() {
   const [activeTab, setActiveTab] = useState("ALL");
   const [discountTypeFilter, setDiscountTypeFilter] = useState("ALL");
   const [sortBy, setSortBy] = useState("dateDesc");
+  const [selectedDate, setSelectedDate] = useState(() => new Date().toISOString().split("T")[0]);
+  const [selectedMonth, setSelectedMonth] = useState("ALL");
+  const [currentTime, setCurrentTime] = useState(() => new Date());
 
   // Modal State
   const [showModal, setShowModal] = useState(false);
   const [showAccountModal, setShowAccountModal] = useState(false);
+  const [showAccountManagement, setShowAccountManagement] = useState(false);
+  const [managedUsers, setManagedUsers] = useState([]);
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [changingPassword, setChangingPassword] = useState(false);
   const [editingBooking, setEditingBooking] = useState(null);
   
   // Form State
@@ -55,6 +64,10 @@ export default function DashboardPage() {
   const [tokenAmount, setTokenAmount] = useState("");
   const [bookingStatus, setBookingStatus] = useState("Confirmed");
   const [notes, setNotes] = useState("");
+  const [bookingType, setBookingType] = useState("confirmed");
+  const [callbackDate, setCallbackDate] = useState("");
+  const [callbackTime, setCallbackTime] = useState("");
+  const [callbackReminder, setCallbackReminder] = useState(false);
   
   // Toasts
   const [toast, setToast] = useState(null);
@@ -63,6 +76,11 @@ export default function DashboardPage() {
     setToast({ msg, type });
     setTimeout(() => setToast(null), 3500);
   };
+
+  useEffect(() => {
+    const clock = setInterval(() => setCurrentTime(new Date()), 1000);
+    return () => clearInterval(clock);
+  }, []);
 
   useEffect(() => {
     fetch('/api/auth/me')
@@ -109,6 +127,33 @@ export default function DashboardPage() {
     router.replace('/login');
   };
 
+  const openAccountManagement = async () => {
+    const response = await fetch('/api/admin/users');
+    if (!response.ok) return showNotification('Admin access required.', 'danger');
+    const data = await response.json();
+    setManagedUsers(data.users || []);
+    setShowAccountManagement(true);
+  };
+
+  const handlePasswordChange = async (event) => {
+    event.preventDefault();
+    if (newPassword !== confirmPassword) return showNotification('New passwords do not match.', 'danger');
+    setChangingPassword(true);
+    try {
+      const response = await fetch('/api/auth/change-password', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ currentPassword, newPassword }) });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || 'Unable to change password.');
+      setCurrentPassword('');
+      setNewPassword('');
+      setConfirmPassword('');
+      showNotification('Password changed successfully.', 'success');
+    } catch (error) {
+      showNotification(error.message, 'danger');
+    } finally {
+      setChangingPassword(false);
+    }
+  };
+
   const openAddModal = () => {
     setEditingBooking(null);
     setCustomId("");
@@ -119,6 +164,10 @@ export default function DashboardPage() {
     setTokenStatus("Token Paid");
     setTokenAmount("");
     setBookingStatus("Confirmed");
+    setBookingType("confirmed");
+    setCallbackDate("");
+    setCallbackTime("");
+    setCallbackReminder(false);
     setNotes("");
     setShowModal(true);
   };
@@ -133,6 +182,10 @@ export default function DashboardPage() {
     setTokenStatus(b.tokenStatus || "Token Paid");
     setTokenAmount(b.tokenAmount || "");
     setBookingStatus(b.bookingStatus || "Confirmed");
+    setBookingType(b.bookingType || "confirmed");
+    setCallbackDate(b.callbackDate || "");
+    setCallbackTime(b.callbackTime || "");
+    setCallbackReminder(Boolean(b.callbackReminder));
     setNotes(b.notes || "");
     setShowModal(true);
   };
@@ -153,6 +206,10 @@ export default function DashboardPage() {
       tokenStatus,
       tokenAmount: parseFloat(tokenAmount) || 0,
       bookingStatus,
+      bookingType,
+      callbackDate,
+      callbackTime,
+      callbackReminder,
       notes,
       isAdmin: adminMode
     };
@@ -186,8 +243,9 @@ export default function DashboardPage() {
   };
 
   const toggleTokenStatus = async (b) => {
-    const nextStatus = b.tokenStatus === "Token Paid" ? "Token Not Paid" : "Token Paid";
-    const nextAmt = nextStatus === "Token Paid" ? (b.tokenAmount > 0 ? b.tokenAmount : 500) : 0;
+    const tokenStatuses = ["Token Paid", "Token Not Paid", "Token Not Taken", "Settled"];
+  const nextStatus = tokenStatuses[(tokenStatuses.indexOf(b.tokenStatus) + 1) % tokenStatuses.length];
+    const nextAmt = nextStatus === "Token Paid" ? (b.tokenAmount > 0 ? b.tokenAmount : 500) : b.tokenAmount || 0;
     try {
       const res = await fetch(`/api/bookings/${b.id}`, {
         method: 'PUT',
@@ -204,7 +262,7 @@ export default function DashboardPage() {
   };
 
   const cycleBookingStatus = async (b) => {
-    const statuses = ["Confirmed", "Pending", "Not Confirmed"];
+    const statuses = ["Confirmed", "Pending", "Not Confirmed", "Cancelled", "Rescheduled", "Settled"];
     const nextStatus = statuses[(statuses.indexOf(b.bookingStatus) + 1) % statuses.length];
     try {
       const res = await fetch(`/api/bookings/${b.id}`, {
@@ -242,13 +300,14 @@ export default function DashboardPage() {
     }
 
     const filtered = getFilteredBookings();
-    if (filtered.length === 0) {
-      showNotification("No records available to export.", "danger");
+    const exportBookings = filtered.filter((b) => b.bookingType !== "potential");
+    if (exportBookings.length === 0) {
+      showNotification("No confirmed bookings available to export.", "danger");
       return;
     }
 
     let totalTokenAmt = 0;
-    const rows = filtered.map((b, idx) => {
+    const rows = exportBookings.map((b, idx) => {
       totalTokenAmt += (b.tokenStatus === "Token Paid" ? (parseFloat(b.tokenAmount) || 0) : 0);
       return {
         "S.No": idx + 1,
@@ -268,7 +327,7 @@ export default function DashboardPage() {
     rows.push({});
     rows.push({
       "S.No": "TOTALS",
-      "Booking ID": `Count: ${filtered.length}`,
+      "Booking ID": `Count: ${exportBookings.length}`,
       "Phone Number": "",
       "Booking Date": "",
       "Booking Details": adminMode ? "ADMIN MASTER SYSTEM SUMMARY" : "MY LEDGER SUMMARY",
@@ -282,13 +341,34 @@ export default function DashboardPage() {
 
     const worksheet = window.XLSX.utils.json_to_sheet(rows);
     const workbook = window.XLSX.utils.book_new();
+    const range = window.XLSX.utils.decode_range(worksheet['!ref']);
+    worksheet['!cols'] = Object.keys(rows[0]).map((key) => ({ wch: Math.min(32, Math.max(14, key.length + 4)) }));
+    for (let col = range.s.c; col <= range.e.c; col += 1) {
+      const cell = worksheet[window.XLSX.utils.encode_cell({ r: 0, c: col })];
+      if (cell) cell.s = { fill: { fgColor: { rgb: '1F4E78' } }, font: { bold: true, color: { rgb: 'FFFFFF' } }, alignment: { horizontal: 'center' } };
+    }
+    for (let row = 1; row <= range.e.r; row += 1) {
+      for (let col = range.s.c; col <= range.e.c; col += 1) {
+        const cell = worksheet[window.XLSX.utils.encode_cell({ r: row, c: col })];
+        if (cell) cell.s = { fill: { fgColor: { rgb: row % 2 ? 'F3F6F8' : 'FFFFFF' } }, alignment: { vertical: 'center' } };
+      }
+    }
     window.XLSX.utils.book_append_sheet(workbook, worksheet, adminMode ? "Master All Users Ledger" : "My Bookings");
-    window.XLSX.writeFile(workbook, `${adminMode ? "Admin_All_Users" : "My_Personal"}_Bookings_${new Date().toISOString().split("T")[0]}.xlsx`);
-    showNotification(`Exported ${filtered.length} records to Excel`, "success");
+    const suffix = selectedMonth !== "ALL" ? selectedMonth : (selectedDate !== "ALL" ? selectedDate : new Date().toISOString().split("T")[0]);
+    window.XLSX.writeFile(workbook, `${adminMode ? "Admin_All_Users" : "My_Personal"}_Bookings_${suffix}.xlsx`);
+    showNotification(`Exported ${exportBookings.length} confirmed bookings to Excel`, "success");
   };
 
   const getFilteredBookings = () => {
     let result = [...bookings];
+
+    if (activeTab === "POTENTIAL") {
+      result = result.filter((b) => b.bookingType === "potential");
+    } else if (selectedMonth !== "ALL") {
+      result = result.filter((b) => b.bookingDate?.startsWith(selectedMonth));
+    } else if (selectedDate !== "ALL") {
+      result = result.filter((b) => b.bookingDate === selectedDate);
+    }
 
     if (search) {
       const q = search.toLowerCase();
@@ -305,6 +385,10 @@ export default function DashboardPage() {
       result = result.filter(b => b.tokenStatus === "Token Paid");
     } else if (activeTab === "UNPAID") {
       result = result.filter(b => b.tokenStatus === "Token Not Paid");
+    } else if (activeTab === "NOT_TAKEN") {
+      result = result.filter(b => b.tokenStatus === "Token Not Taken");
+    } else if (activeTab === "SETTLED") {
+      result = result.filter(b => b.tokenStatus === "Settled");
     } else if (activeTab === "CONFIRMED") {
       result = result.filter(b => b.bookingStatus === "Confirmed");
     } else if (activeTab === "PENDING") {
@@ -317,9 +401,11 @@ export default function DashboardPage() {
       if (discountTypeFilter === "NUMERICAL") {
         const presets = ["50", "60", "75", "85", "100", "115", "125", "150", "175", "200"];
         result = result.filter(b => presets.includes(b.discountType));
-      } else if (discountTypeFilter === "GROUP") {
-        result = result.filter(b => b.discountType && b.discountType.startsWith("Group offer"));
-      } else {
+  } else if (discountTypeFilter === "GROUP") {
+  result = result.filter(b => b.discountType && b.discountType.startsWith("Group offer"));
+  } else if (discountTypeFilter === "Big Buffet") {
+  result = result.filter(b => b.discountType === "Big Buffet");
+  } else {
         result = result.filter(b => b.discountType === discountTypeFilter);
       }
     }
@@ -334,13 +420,21 @@ export default function DashboardPage() {
   };
 
   const filteredBookings = getFilteredBookings();
+  const todayKey = new Date().toISOString().split("T")[0];
+  const callbackBookings = bookings
+    .filter((b) => b.bookingType === "potential" && b.callbackReminder)
+    .sort((a, b) => `${a.callbackDate || "9999-12-31"}T${a.callbackTime || "23:59"}`.localeCompare(`${b.callbackDate || "9999-12-31"}T${b.callbackTime || "23:59"}`));
+  const dateBookings = selectedMonth !== "ALL" ? bookings.filter((b) => b.bookingDate?.startsWith(selectedMonth)) : (selectedDate === "ALL" ? bookings : bookings.filter((b) => b.bookingDate === selectedDate));
 
-  const tokenPaidCount = bookings.filter(b => b.tokenStatus === "Token Paid").length;
-  const tokenUnpaidCount = bookings.filter(b => b.tokenStatus === "Token Not Paid").length;
-  const tokenPaidAmt = bookings.reduce((sum, b) => sum + (b.tokenStatus === "Token Paid" ? (parseFloat(b.tokenAmount) || 0) : 0), 0);
-  const confirmedCount = bookings.filter(b => b.bookingStatus === "Confirmed").length;
-  const pendingCount = bookings.filter(b => b.bookingStatus === "Pending").length;
-  const groupOfferCount = bookings.filter(b => b.discountType && b.discountType.startsWith("Group offer")).length;
+  const tokenPaidCount = dateBookings.filter(b => b.tokenStatus === "Token Paid").length;
+  const tokenUnpaidCount = dateBookings.filter(b => b.tokenStatus === "Token Not Paid").length;
+  const tokenNotTakenCount = dateBookings.filter(b => b.tokenStatus === "Token Not Taken").length;
+  const settledCount = dateBookings.filter(b => b.tokenStatus === "Settled").length;
+  const tokenPaidAmt = dateBookings.reduce((sum, b) => sum + (b.tokenStatus === "Token Paid" ? (parseFloat(b.tokenAmount) || 0) : 0), 0);
+  const confirmedCount = dateBookings.filter(b => b.bookingStatus === "Confirmed").length;
+  const pendingCount = dateBookings.filter(b => b.bookingStatus === "Pending").length;
+  const groupOfferCount = dateBookings.filter(b => b.discountType && b.discountType.startsWith("Group offer")).length;
+  const bigBuffetCount = dateBookings.filter(b => b.discountType === "Big Buffet").length;
 
   if (loading) {
     return (
@@ -378,13 +472,19 @@ export default function DashboardPage() {
             {adminMode ? "Switch to Personal View" : "👑 Admin Super Access"}
           </button>
 
+          {adminMode && user?.role === 'admin' && (
+            <button onClick={openAccountManagement} className="btn btn-secondary" title="Manage accounts">
+              <i className="fa-solid fa-users-gear"></i> Manage Accounts
+            </button>
+          )}
+
           {user && (
             <button onClick={() => setShowAccountModal(true)} className="btn btn-secondary" title="View Account Profile">
               <span className="user-avatar">{user.name ? user.name[0].toUpperCase() : 'U'}</span>
               <span>Account</span>
             </button>
           )}
-          <button onClick={exportToExcel} className="btn btn-excel">
+  <button onClick={exportToExcel} className="btn btn-excel">
             <i className="fa-solid fa-file-excel"></i> Export Sheet (.xlsx)
           </button>
           <button onClick={openAddModal} className="btn btn-primary">
@@ -453,11 +553,20 @@ export default function DashboardPage() {
         <button className={`btn btn-sm ${activeTab === "ALL" ? "btn-primary" : "btn-secondary"}`} onClick={() => setActiveTab("ALL")}>
           All Bookings ({bookings.length})
         </button>
+        <button className={`btn btn-sm ${activeTab === "POTENTIAL" ? "btn-primary" : "btn-secondary"}`} onClick={() => setActiveTab("POTENTIAL")}>
+          Potential / Callbacks ({bookings.filter(b => b.bookingType === "potential").length})
+        </button>
         <button className={`btn btn-sm ${activeTab === "PAID" ? "btn-primary" : "btn-secondary"}`} onClick={() => setActiveTab("PAID")}>
           <i className="fa-solid fa-circle-check" style={{ color: '#137333' }}></i> Token Paid ({tokenPaidCount})
         </button>
         <button className={`btn btn-sm ${activeTab === "UNPAID" ? "btn-primary" : "btn-secondary"}`} onClick={() => setActiveTab("UNPAID")}>
           <i className="fa-solid fa-circle-xmark" style={{ color: '#c5221f' }}></i> Token Unpaid ({tokenUnpaidCount})
+        </button>
+        <button className={`btn btn-sm ${activeTab === "NOT_TAKEN" ? "btn-primary" : "btn-secondary"}`} onClick={() => setActiveTab("NOT_TAKEN")}>
+          Token Not Taken ({tokenNotTakenCount})
+        </button>
+        <button className={`btn btn-sm ${activeTab === "SETTLED" ? "btn-primary" : "btn-secondary"}`} onClick={() => setActiveTab("SETTLED")}>
+          Settled ({settledCount})
         </button>
         <button className={`btn btn-sm ${activeTab === "CONFIRMED" ? "btn-primary" : "btn-secondary"}`} onClick={() => setActiveTab("CONFIRMED")}>
           Confirmed ({confirmedCount})
@@ -483,10 +592,19 @@ export default function DashboardPage() {
         </div>
 
         <div className="filters-group">
+          <label htmlFor="bookingDateFilter" className="sr-only">Show bookings for date</label>
+          <input id="bookingDateFilter" className="form-select" type="date" value={selectedDate === "ALL" ? "" : selectedDate} onChange={(e) => setSelectedDate(e.target.value || "ALL")} aria-label="Show bookings for date" />
+          <button className={`btn btn-sm ${selectedDate === "ALL" ? "btn-primary" : "btn-secondary"}`} onClick={() => setSelectedDate("ALL")}>All Dates</button>
+          <button className="btn btn-secondary btn-sm" onClick={() => { setSelectedDate(new Date().toISOString().split("T")[0]); setSelectedMonth("ALL"); }}>Today</button>
+          <label htmlFor="bookingMonthFilter" className="sr-only">Show bookings for month</label>
+          <input id="bookingMonthFilter" className="form-select" type="month" value={selectedMonth === "ALL" ? "" : selectedMonth} onChange={(e) => { setSelectedMonth(e.target.value || "ALL"); setSelectedDate("ALL"); }} aria-label="Show bookings for month" />
+          <button className={`btn btn-sm ${selectedMonth === "ALL" ? "btn-secondary" : "btn-primary"}`} onClick={() => setSelectedMonth(new Date().toISOString().slice(0, 7))}>This Month</button>
+          <span className="digital-clock" aria-live="polite">{currentTime.toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit", second: "2-digit" })}</span>
           <select className="form-select" value={discountTypeFilter} onChange={(e) => setDiscountTypeFilter(e.target.value)}>
             <option value="ALL">All Discounts</option>
             <option value="NUMERICAL">Presets (50 to 200)</option>
             <option value="GROUP">Group Offers (4, 6, 8)</option>
+  <option value="Big Buffet">Big Buffet</option>
             <option value="50">50</option>
             <option value="60">60</option>
             <option value="75">75</option>
@@ -503,10 +621,48 @@ export default function DashboardPage() {
             <option value="None">No Discount (0)</option>
           </select>
 
-          <button className="btn btn-secondary btn-sm" onClick={() => { setSearch(""); setActiveTab("ALL"); setDiscountTypeFilter("ALL"); }}>
+          <button className="btn btn-secondary btn-sm" onClick={() => { setSearch(""); setActiveTab("ALL"); setDiscountTypeFilter("ALL"); setSelectedDate(new Date().toISOString().split("T")[0]); setSelectedMonth("ALL"); }}>
             <i className="fa-solid fa-filter-circle-xmark"></i> Clear Filters
           </button>
         </div>
+      </section>
+
+      {/* Callback tracker */}
+      <section className="callback-tracker" aria-labelledby="callback-tracker-title">
+        <div className="callback-tracker-header">
+          <div>
+            <span className="section-kicker"><i className="fa-solid fa-phone-volume"></i> Follow-up queue</span>
+            <h2 id="callback-tracker-title">Callback Tracker</h2>
+            <p>Potential bookings marked for a follow-up call.</p>
+          </div>
+          <strong>{callbackBookings.length} reminder{callbackBookings.length === 1 ? "" : "s"}</strong>
+        </div>
+        {callbackBookings.length === 0 ? (
+          <div className="callback-empty"><i className="fa-solid fa-circle-check"></i> No callback reminders are waiting.</div>
+        ) : (
+          <div className="callback-list">
+            {callbackBookings.map((b) => {
+              const callbackTimestamp = b.callbackDate ? new Date(`${b.callbackDate}T${b.callbackTime || "00:00"}`) : null;
+              const isDue = callbackTimestamp && callbackTimestamp <= new Date();
+              return (
+                <article className={`callback-item ${isDue ? "callback-due" : ""}`} key={`callback-${b.id}`}>
+                  <div className="callback-item-main">
+                    <strong>{b.name || b.customerName || "Potential customer"}</strong>
+                    <span>{b.phone || "No phone number"} · Booking {b.bookingDate || "date not set"}</span>
+                    {b.notes && <small>{b.notes}</small>}
+                  </div>
+                  <div className="callback-item-meta">
+                    <span><i className="fa-solid fa-calendar-day"></i> {isDue ? "Due now" : `Call on ${b.callbackDate || "soon"}${b.callbackTime ? ` at ${b.callbackTime}` : ""}`}</span>
+                    <div className="callback-actions">
+                      {b.phone && <a className="btn btn-secondary btn-sm" href={`tel:${b.phone}`}><i className="fa-solid fa-phone"></i> Call</a>}
+                      <button className="btn btn-secondary btn-sm" onClick={() => openEditModal(b)}><i className="fa-solid fa-pen"></i> Open</button>
+                    </div>
+                  </div>
+                </article>
+              );
+            })}
+          </div>
+        )}
       </section>
 
       {/* Table */}
@@ -554,9 +710,10 @@ export default function DashboardPage() {
                     <td>
                       <div>
                         {b.customId && <span className="booking-id-badge">{b.customId}</span>}
-                        <div style={{ fontWeight: '600' }}>
-                          <i className="fa-solid fa-phone" style={{ marginRight: '6px', color: '#0f9d58' }}></i> {b.phone}
-                        </div>
+          <div style={{ fontWeight: '600' }}>
+            <i className="fa-solid fa-phone" style={{ marginRight: '6px', color: '#0f9d58' }}></i> {b.phone}
+          </div>
+          {b.callbackReminder && <span className="callback-reminder"><i className="fa-solid fa-bell"></i> Call back {b.callbackDate || "soon"}</span>}
                       </div>
                     </td>
                     <td>
@@ -571,13 +728,13 @@ export default function DashboardPage() {
                       </span>
                     </td>
                     <td>
-                      <span className={`badge-status ${b.tokenStatus === "Token Paid" ? "token-paid" : "token-unpaid"}`} onClick={() => toggleTokenStatus(b)} title="Click to toggle Token Status">
-                        <i className={`fa-solid ${b.tokenStatus === "Token Paid" ? "fa-circle-check" : "fa-circle-xmark"}`}></i>
-                        {b.tokenStatus === "Token Paid" ? `Token Paid (${formatINR(b.tokenAmount)})` : "Token Not Paid"}
-                      </span>
+  <span className={`badge-status ${b.tokenStatus === "Token Paid" ? "token-paid" : (b.tokenStatus === "Token Not Paid" ? "token-unpaid" : (b.tokenStatus === "Token Not Taken" ? "token-not-taken" : "token-settled"))}`} onClick={() => toggleTokenStatus(b)} title="Click to cycle Token Status">
+  <i className={`fa-solid ${b.tokenStatus === "Token Paid" ? "fa-circle-check" : (b.tokenStatus === "Settled" ? "fa-circle-check" : "fa-circle-xmark")}`}></i>
+  {b.tokenStatus === "Token Paid" ? `Token Paid (${formatINR(b.tokenAmount)})` : b.tokenStatus}
+  </span>
                     </td>
                     <td>
-                      <span className={`badge-status ${b.bookingStatus === "Confirmed" ? "status-confirmed" : (b.bookingStatus === "Pending" ? "status-pending" : "status-not-confirmed")}`} onClick={() => cycleBookingStatus(b)} title="Click to cycle status">
+                      <span className={`badge-status ${b.bookingStatus === "Confirmed" ? "status-confirmed" : (b.bookingStatus === "Pending" ? "status-pending" : ((b.bookingStatus === "Cancelled" || b.bookingStatus === "Not Confirmed") ? "status-not-confirmed" : (b.bookingStatus === "Settled" ? "token-settled" : "status-rescheduled")))}`} onClick={() => cycleBookingStatus(b)} title="Click to cycle status">
                         {b.bookingStatus}
                       </span>
                     </td>
@@ -668,7 +825,8 @@ export default function DashboardPage() {
                       <option value="175">₹175 Discount</option>
                       <option value="200">₹200 Discount</option>
                     </optgroup>
-                    <optgroup label="Special Group Offers">
+                    <optgroup label="Special Offers">
+                      <option value="Big Buffet">Big Buffet</option>
                       <option value="Group offer for 4">Group offer for 4</option>
                       <option value="Group offer for 6">Group offer for 6</option>
                       <option value="Group offer for 8">Group offer for 8</option>
@@ -678,13 +836,17 @@ export default function DashboardPage() {
 
                 <div className="form-group">
                   <label>Token Paid Status</label>
-                  <div style={{ display: 'flex', gap: '8px' }}>
-                    <button type="button" className={`btn ${tokenStatus === "Token Paid" ? "btn-primary" : "btn-secondary"}`} style={{ flex: 1 }} onClick={() => setTokenStatus("Token Paid")}>
-                      Token Paid
-                    </button>
-                    <button type="button" className={`btn ${tokenStatus === "Token Not Paid" ? "btn-secondary" : "btn-secondary"}`} style={{ flex: 1, borderColor: tokenStatus === "Token Not Paid" ? '#c5221f' : '#dadce0', color: tokenStatus === "Token Not Paid" ? '#c5221f' : '#202124' }} onClick={() => setTokenStatus("Token Not Paid")}>
-                      Token Unpaid
-                    </button>
+                  <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                    {["Token Paid", "Token Not Paid", "Token Not Taken"].map((status) => {
+                      let btnColor = {};
+                      if (status === "Token Not Paid") btnColor = { backgroundColor: tokenStatus === status ? '#c5221f' : '#fadbd8', color: tokenStatus === status ? 'white' : '#c5221f', borderColor: '#c5221f' };
+                      else if (status === "Token Not Taken") btnColor = { backgroundColor: tokenStatus === status ? '#81c995' : '#d4edda', color: tokenStatus === status ? 'white' : '#137333', borderColor: '#81c995' };
+                      return (
+                        <button key={status} type="button" className={`btn ${tokenStatus === status ? "btn-primary" : "btn-secondary"}`} style={{ flex: 1, minWidth: '140px', ...btnColor }} onClick={() => setTokenStatus(status)}>
+                          {status}
+                        </button>
+                      );
+                    })}
                   </div>
                 </div>
 
@@ -704,9 +866,30 @@ export default function DashboardPage() {
                     <option value="Confirmed">Confirmed</option>
                     <option value="Pending">Pending</option>
                     <option value="Not Confirmed">Not Confirmed</option>
+                    <option value="Settled">Settled</option>
+                    <option value="Cancelled">Cancelled</option>
+                    <option value="Rescheduled">Rescheduled</option>
                   </select>
                 </div>
 
+                <div className="form-group full-width">
+                  <label htmlFor="bookingType">Record Type</label>
+                  <select id="bookingType" className="form-select" value={bookingType} onChange={(e) => setBookingType(e.target.value)}>
+                    <option value="confirmed">Confirmed Booking</option>
+                    <option value="potential">Potential Booking / Callback</option>
+                  </select>
+                </div>
+                {bookingType === "potential" && (
+                  <div className="form-group full-width callback-panel">
+                    <label htmlFor="callbackDate">Callback reminder date</label>
+                    <input id="callbackDate" className="form-select" type="date" value={callbackDate} onChange={(e) => setCallbackDate(e.target.value)} />
+                    <label htmlFor="callbackTime">Time to call</label>
+                    <input id="callbackTime" className="form-select" type="time" value={callbackTime} onChange={(e) => setCallbackTime(e.target.value)} />
+                    <button type="button" className={`btn btn-sm ${callbackReminder ? "btn-primary" : "btn-secondary"}`} onClick={() => setCallbackReminder((enabled) => !enabled)} aria-pressed={callbackReminder}>
+                      <i className={`fa-solid ${callbackReminder ? "fa-bell" : "fa-bell-slash"}`}></i> {callbackReminder ? "Callback Reminder On" : "Add Call Back Reminder"}
+                    </button>
+                  </div>
+                )}
                 <div className="form-group full-width">
                   <label htmlFor="notes">Notes / Remarks</label>
                   <textarea id="notes" rows={2} placeholder="Add any special requirements..." value={notes} onChange={(e) => setNotes(e.target.value)}></textarea>
@@ -759,19 +942,58 @@ export default function DashboardPage() {
                   <span style={{ color: '#5f6368' }}>Cloud Storage Sync:</span>
                   <strong style={{ color: isCloudConnected ? '#0f9d58' : '#b06000' }}>
                     {isCloudConnected ? (
-                      <span><i className="fa-solid fa-cloud-check"></i> Connected (MongoDB Atlas)</span>
+                      <span><i className="fa-solid fa-cloud-check"></i> Connected (Netlify Cloud Database)</span>
                     ) : (
                       <span><i className="fa-solid fa-triangle-exclamation"></i> Local Storage (Connect MongoDB Atlas)</span>
                     )}
                   </strong>
                 </div>
               </div>
+
+              <form className="password-change-panel" onSubmit={handlePasswordChange}>
+                <h3><i className="fa-solid fa-key"></i> Change Password</h3>
+                <label htmlFor="currentPassword">Current password</label>
+                <input id="currentPassword" type="password" value={currentPassword} onChange={(event) => setCurrentPassword(event.target.value)} required autoComplete="current-password" />
+                <label htmlFor="newPassword">New password</label>
+                <input id="newPassword" type="password" value={newPassword} onChange={(event) => setNewPassword(event.target.value)} required minLength={8} autoComplete="new-password" />
+                <label htmlFor="confirmPassword">Confirm new password</label>
+                <input id="confirmPassword" type="password" value={confirmPassword} onChange={(event) => setConfirmPassword(event.target.value)} required minLength={8} autoComplete="new-password" />
+                <button className="btn btn-primary" type="submit" disabled={changingPassword}>{changingPassword ? 'Changing…' : 'Change Password'}</button>
+              </form>
             </div>
             <div className="modal-footer">
               <button className="btn btn-secondary" onClick={() => setShowAccountModal(false)}>Close</button>
               <button className="btn btn-primary" onClick={handleLogout}>
                 <i className="fa-solid fa-right-from-bracket"></i> Sign Out
               </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showAccountManagement && (
+        <div className="modal-overlay">
+          <div className="modal-card account-management-card">
+            <div className="modal-header">
+              <h2><i className="fa-solid fa-users-gear"></i> Account Management</h2>
+              <button className="btn-close" onClick={() => setShowAccountManagement(false)}>&times;</button>
+            </div>
+            <div className="modal-body">
+              <p className="text-muted">Review registered accounts and their access roles. Passwords are never displayed.</p>
+              <div className="account-list">
+                {managedUsers.map((managedUser) => (
+                  <div className="account-row" key={managedUser.id || managedUser.email}>
+                    <div>
+                      <strong>{managedUser.name || 'Unnamed user'}</strong>
+                      <span>{managedUser.email}</span>
+                    </div>
+                    <span className={`badge-tag ${managedUser.role === 'admin' ? 'account-role-admin' : ''}`}>{managedUser.role || 'user'}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div className="modal-footer">
+              <button className="btn btn-secondary" onClick={() => setShowAccountManagement(false)}>Close</button>
             </div>
           </div>
         </div>

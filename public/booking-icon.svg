@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Booking calendar icon">
+  <rect x="7" y="11" width="50" height="46" rx="8" fill="#1a73e8"/>
+  <rect x="7" y="11" width="50" height="14" rx="8" fill="#174ea6"/>
+  <path d="M19 7v11M45 7v11" stroke="#fff" stroke-width="6" stroke-linecap="round"/>
+  <path d="M17 33h8M28 33h8M39 33h8M17 44h8M28 44h8M39 44h8" stroke="#fff" stroke-width="4" stroke-linecap="round"/>
+</svg>
