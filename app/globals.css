@@ -747,6 +747,235 @@ body {
   gap: 6px;
 }
 
+/* Booking Hub Apex visual system */
+:root {
+  --apex-red: #c8161f;
+  --apex-red-dark: #7d0f15;
+  --apex-orange: #ff5a1f;
+  --apex-green: #2fb62f;
+  --apex-grey: #444;
+  --apex-greybar: #8b8b8b;
+}
+
+body {
+  font-family: 'Rajdhani', var(--font-body);
+  letter-spacing: 0.025em;
+}
+
+.crm-container {
+  max-width: 1200px;
+  padding: 22px 18px 60px;
+  gap: 22px;
+}
+
+.crm-header {
+  position: relative;
+  border-radius: 0;
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+  padding: 0;
+  align-items: flex-end;
+}
+
+.header-left {
+  align-items: flex-start;
+}
+
+.app-title {
+  font-family: 'Teko', sans-serif;
+  font-size: clamp(2.2rem, 5vw, 3rem);
+  line-height: 1;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.logo-box {
+  align-items: flex-start;
+}
+
+.logo-icon {
+  color: #fff !important;
+  background: linear-gradient(160deg, var(--apex-red), var(--apex-red-dark));
+  border: 0;
+  border-radius: 0;
+  clip-path: polygon(0 0, 100% 0, 100% 78%, 0 100%);
+  padding: 14px 16px 22px;
+}
+
+.app-title .badge-tag {
+  border-radius: 0;
+  clip-path: polygon(0 0, 92% 0, 100% 100%, 8% 100%);
+  background: var(--apex-red) !important;
+  color: #fff !important;
+  border: 0;
+  padding: 5px 14px 7px;
+}
+
+.app-subtitle {
+  letter-spacing: 0.035em;
+}
+
+.header-right {
+  gap: 8px;
+}
+
+.btn,
+.btn-secondary,
+.btn-primary,
+.btn-excel {
+  border-radius: 0;
+  border: 2px solid currentColor;
+  background: var(--btn-bg, var(--bg-card));
+  color: var(--text-main);
+  box-shadow: none;
+  text-transform: uppercase;
+  font-family: 'Rajdhani', sans-serif;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  position: relative;
+}
+
+.btn:hover,
+.btn-secondary:hover,
+.btn-primary:hover,
+.btn-excel:hover {
+  border-color: var(--apex-orange);
+  box-shadow: inset 0 -6px 0 var(--apex-greybar);
+  transform: none;
+}
+
+.btn-primary,
+.btn-excel {
+  background: linear-gradient(180deg, var(--apex-red), var(--apex-red-dark));
+  color: #fff;
+  border-color: var(--apex-red);
+}
+
+.btn-primary:hover,
+.btn-excel:hover {
+  color: #fff;
+}
+
+.metrics-grid {
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: 18px;
+}
+
+.metric-card {
+  border-radius: 0;
+  border: 1px solid var(--border-color);
+  background: var(--bg-card);
+  box-shadow: none;
+  overflow: hidden;
+  min-height: 128px;
+}
+
+.metric-card::before {
+  width: 70px;
+  height: 78px;
+  background: linear-gradient(160deg, var(--apex-red), var(--apex-red-dark));
+  clip-path: polygon(0 0, 100% 0, 100% 78%, 0 100%);
+}
+
+.metric-header,
+.metric-body {
+  position: relative;
+  z-index: 1;
+}
+
+.metric-title,
+.metric-subtext {
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.metric-value {
+  font-family: 'Teko', sans-serif;
+  font-size: 3rem;
+  letter-spacing: 0.04em;
+}
+
+.metric-icon {
+  border-radius: 0;
+  color: var(--apex-red);
+  background: transparent;
+}
+
+.metrics-grid .card-gradient-1,
+.metrics-grid .card-gradient-2,
+.metrics-grid .card-gradient-3,
+.metrics-grid .card-gradient-4 {
+  background: var(--bg-card);
+}
+
+.crm-container > div[style*="flex-wrap"] {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  padding: 12px 16px;
+}
+
+.crm-container > div[style*="flex-wrap"] > span {
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.callback-tracker,
+.table-container-card,
+.filter-panel,
+.form-card {
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.callback-tracker {
+  border-top: 4px solid var(--apex-red);
+}
+
+.callback-tracker-header h2,
+.panel-title,
+.form-card h2 {
+  font-family: 'Teko', sans-serif;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.table-container-card {
+  border: 1px solid var(--border-color);
+  background: var(--bg-card);
+}
+
+.table-header {
+  border-radius: 0;
+  border-bottom: 4px solid var(--apex-red);
+}
+
+table th {
+  font-family: 'Teko', sans-serif;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.badge-status,
+.badge-tag,
+.booking-id-badge {
+  border-radius: 0;
+  clip-path: polygon(8px 0, 100% 0, calc(100% - 8px) 100%, 0 100%);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+@media (max-width: 760px) {
+  .crm-header { align-items: stretch; }
+  .header-right { width: 100%; }
+  .header-right .btn { flex: 1 1 auto; }
+  .app-title { font-size: 2.2rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .btn:hover { transform: none; }
+}
+
 .action-btn {
   width: 28px;
   height: 28px;
