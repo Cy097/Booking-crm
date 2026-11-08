@@ -1078,3 +1078,18 @@ tbody tr:hover td { background: rgba(63,143,138,.14); }
   .app-title { font-size: 30px; }
   .crm-header { align-items: stretch; }
 }
+
+/* Calm theme: slanted quick-filter tabs */
+.tab {
+  position: relative;
+  border: 0;
+  cursor: pointer;
+  padding: 8px 38px 12px;
+  font: 600 15px/1.2 'Rajdhani', sans-serif;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+}
+.tab::after { content: ""; position: absolute; left: 14%; right: 0; bottom: 0; height: 5px; background: var(--calm-greybar); }
+.tab:hover { filter: brightness(1.2); }
+.tab.active::after { background: var(--calm-orange); }
+.tab:focus-visible { outline: 2px solid var(--calm-orange); outline-offset: 2px; }
