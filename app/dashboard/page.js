@@ -438,9 +438,9 @@ export default function DashboardPage() {
 
   if (loading) {
     return (
-      <div style={{ display: 'flex', minHeight: '100vh', alignItems: 'center', justifyContent: 'center', background: '#f8f9fa' }}>
-        <p style={{ color: '#5f6368', fontFamily: 'Roboto, sans-serif' }}>
-          <i className="fa-solid fa-circle-notch fa-spin" style={{ marginRight: '8px', color: '#0f9d58' }}></i>
+      <div style={{ display: 'flex', minHeight: '100vh', alignItems: 'center', justifyContent: 'center', background: 'var(--bg)' }}>
+        <p style={{ color: 'var(--dim)', fontFamily: 'Roboto, sans-serif' }}>
+          <i className="fa-solid fa-circle-notch fa-spin" style={{ marginRight: '8px', color: 'var(--ok)' }}></i>
           Loading Master Booking Control Hub...
         </p>
       </div>
@@ -453,46 +453,51 @@ export default function DashboardPage() {
       <header className="crm-header">
         <div className="header-left">
           <div className="logo-box">
-            <i className={`fa-solid ${adminMode ? "fa-crown" : "fa-user-gear"} logo-icon`} style={{ color: adminMode ? '#b06000' : '#0f9d58' }}></i>
+            <i className={`fa-solid ${adminMode ? "fa-crown" : "fa-user-gear"} logo-icon`}></i>
             <div>
               <h1 className="app-title">
-                {adminMode ? "Admin Master Access" : "My Personal"} <span className="badge-tag" style={{ background: adminMode ? '#fef7e0' : '#e6f4ea', color: adminMode ? '#b06000' : '#137333' }}>
-                  {adminMode ? "👑 All Users View" : "Personal Hub"}
+                {adminMode ? "Admin Master Access" : "My Personal"} <span className="badge-tag">
+                  {adminMode ? "All Users View" : "Personal Hub"}
                 </span>
               </h1>
-              <p className="app-subtitle">{getTimeGreeting()}, <strong>{user?.name || user?.email}</strong> 👋 {adminMode ? "Super Admin Access: Viewing ALL bookings across system" : "Personal Booking & Token Dashboard"}</p>
+              <p className="app-subtitle">{getTimeGreeting()}, <strong>{user?.name || user?.email}</strong>. {adminMode ? "Super Admin Access: Viewing ALL bookings across system" : "Personal Booking & Token Dashboard"}</p>
             </div>
           </div>
         </div>
 
         <div className="header-right">
-          {/* Admin Mode Toggle Button */}
-          <button onClick={toggleAdminView} className="btn" style={{ background: adminMode ? '#fef7e0' : '#e6f4ea', color: adminMode ? '#b06000' : '#137333', border: '1px solid #dadce0', fontWeight: '600' }}>
-            <i className={`fa-solid ${adminMode ? "fa-user" : "fa-crown"}`}></i>
-            {adminMode ? "Switch to Personal View" : "👑 Admin Super Access"}
-          </button>
-
-          {adminMode && user?.role === 'admin' && (
-            <button onClick={openAccountManagement} className="btn btn-secondary" title="Manage accounts">
-              <i className="fa-solid fa-users-gear"></i> Manage Accounts
+          <div className="header-group">
+            <button onClick={openAddModal} className="btn btn-primary">
+              <i className="fa-solid fa-plus"></i> New Booking
             </button>
-          )}
-
-          {user && (
-            <button onClick={() => setShowAccountModal(true)} className="btn btn-secondary" title="View Account Profile">
-              <span className="user-avatar">{user.name ? user.name[0].toUpperCase() : 'U'}</span>
-              <span>Account</span>
+            <button onClick={exportToExcel} className="btn btn-excel">
+              <i className="fa-solid fa-file-excel"></i> Export Sheet (.xlsx)
             </button>
-          )}
-  <button onClick={exportToExcel} className="btn btn-excel">
-            <i className="fa-solid fa-file-excel"></i> Export Sheet (.xlsx)
-          </button>
-          <button onClick={openAddModal} className="btn btn-primary">
-            <i className="fa-solid fa-plus"></i> New Booking
-          </button>
-          <button onClick={handleLogout} className="btn btn-secondary" title="Sign Out">
-            <i className="fa-solid fa-right-from-bracket"></i> Sign Out
-          </button>
+          </div>
+
+          <div className="header-group">
+            <button onClick={toggleAdminView} className="btn btn-switch">
+              <i className={`fa-solid ${adminMode ? "fa-user" : "fa-crown"}`}></i>
+              {adminMode ? "Switch to Personal View" : "Admin Super Access"}
+            </button>
+            {adminMode && user?.role === 'admin' && (
+              <button onClick={openAccountManagement} className="btn btn-secondary" title="Manage accounts">
+                <i className="fa-solid fa-users-gear"></i> Manage Accounts
+              </button>
+            )}
+          </div>
+
+          <div className="header-group">
+            {user && (
+              <button onClick={() => setShowAccountModal(true)} className="btn btn-ghost" title="View Account Profile">
+                <span className="user-avatar">{user.name ? user.name[0].toUpperCase() : 'U'}</span>
+                <span>Account</span>
+              </button>
+            )}
+            <button onClick={handleLogout} className="btn btn-ghost" title="Sign Out">
+              <i className="fa-solid fa-right-from-bracket"></i> Sign Out
+            </button>
+          </div>
         </div>
       </header>
 
@@ -547,7 +552,7 @@ export default function DashboardPage() {
 
       {/* Filter Pills */}
       <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', alignItems: 'center' }}>
-        <span style={{ fontSize: '0.82rem', fontWeight: '600', color: 'var(--calm-dim)', marginRight: '6px' }}>
+        <span style={{ fontSize: '0.82rem', fontWeight: '600', color: 'var(--dim)', marginRight: '6px' }}>
           <i className="fa-solid fa-filter"></i> Quick Filter:
         </span>
         <button className={`tab ${activeTab === "ALL" ? "active" : ""}`} aria-pressed={activeTab === "ALL"} onClick={() => setActiveTab("ALL")}>
@@ -557,10 +562,10 @@ export default function DashboardPage() {
           Potential / Callbacks ({bookings.filter(b => b.bookingType === "potential").length})
         </button>
         <button className={`tab ${activeTab === "PAID" ? "active" : ""}`} aria-pressed={activeTab === "PAID"} onClick={() => setActiveTab("PAID")}>
-          <i className="fa-solid fa-circle-check" style={{ color: 'var(--calm-green)' }}></i> Token Paid ({tokenPaidCount})
+          <i className="fa-solid fa-circle-check" style={{ color: 'var(--ok)' }}></i> Token Paid ({tokenPaidCount})
         </button>
         <button className={`tab ${activeTab === "UNPAID" ? "active" : ""}`} aria-pressed={activeTab === "UNPAID"} onClick={() => setActiveTab("UNPAID")}>
-          <i className="fa-solid fa-circle-xmark" style={{ color: '#d98a80' }}></i> Token Unpaid ({tokenUnpaidCount})
+          <i className="fa-solid fa-circle-xmark" style={{ color: 'var(--bad)' }}></i> Token Unpaid ({tokenUnpaidCount})
         </button>
         <button className={`tab ${activeTab === "NOT_TAKEN" ? "active" : ""}`} aria-pressed={activeTab === "NOT_TAKEN"} onClick={() => setActiveTab("NOT_TAKEN")}>
           Token Not Taken ({tokenNotTakenCount})
@@ -695,8 +700,8 @@ export default function DashboardPage() {
             <tbody>
               {filteredBookings.length === 0 ? (
                 <tr>
-                  <td colSpan={adminMode ? 7 : 6} style={{ textAlign: 'center', padding: '50px 20px', color: '#5f6368' }}>
-                    <i className="fa-solid fa-clipboard-user" style={{ fontSize: '3rem', color: '#0f9d58', marginBottom: '12px', display: 'block' }}></i>
+                  <td colSpan={adminMode ? 7 : 6} style={{ textAlign: 'center', padding: '50px 20px', color: 'var(--dim)' }}>
+                    <i className="fa-solid fa-clipboard-user" style={{ fontSize: '3rem', color: 'var(--ok)', marginBottom: '12px', display: 'block' }}></i>
                     <h3>No Records Found</h3>
                     <p style={{ marginTop: '4px', fontSize: '0.88rem' }}>No booking entries match your filter. Click <strong>"+ New Booking"</strong> to log a record!</p>
                     <button onClick={openAddModal} className="btn btn-primary btn-sm" style={{ marginTop: '16px' }}>
@@ -711,7 +716,7 @@ export default function DashboardPage() {
                       <div>
                         {b.customId && <span className="booking-id-badge">{b.customId}</span>}
           <div style={{ fontWeight: '600' }}>
-            <i className="fa-solid fa-phone" style={{ marginRight: '6px', color: '#0f9d58' }}></i> {b.phone}
+            <i className="fa-solid fa-phone" style={{ marginRight: '6px', color: 'var(--ok)' }}></i> {b.phone}
           </div>
           {b.callbackReminder && <span className="callback-reminder"><i className="fa-solid fa-bell"></i> Call back {b.callbackDate || "soon"}</span>}
                       </div>
@@ -719,7 +724,7 @@ export default function DashboardPage() {
                     <td>
                       <div>
                         <strong>{b.bookingDate}</strong>
-                        <div style={{ fontSize: '0.8rem', color: '#5f6368' }}>{b.bookingDetails}</div>
+                        <div style={{ fontSize: '0.8rem', color: 'var(--dim)' }}>{b.bookingDetails}</div>
                       </div>
                     </td>
                     <td>
@@ -742,7 +747,7 @@ export default function DashboardPage() {
                       <td>
                         <div style={{ fontSize: '0.78rem' }}>
                           <strong>{b.creatorName || 'User'}</strong>
-                          <div style={{ color: '#5f6368' }}>{b.creatorEmail || 'Private'}</div>
+                          <div style={{ color: 'var(--dim)' }}>{b.creatorEmail || 'Private'}</div>
                         </div>
                       </td>
                     )}
@@ -751,7 +756,7 @@ export default function DashboardPage() {
                         <button className="action-btn" onClick={() => openEditModal(b)} title="Edit Record">
                           <i className="fa-solid fa-pen-to-square"></i>
                         </button>
-                        <button className="action-btn" onClick={() => handleDelete(b)} title="Delete Record" style={{ color: '#c5221f' }}>
+                        <button className="action-btn" onClick={() => handleDelete(b)} title="Delete Record" style={{ color: 'var(--bad)' }}>
                           <i className="fa-solid fa-trash-can"></i>
                         </button>
                       </div>
@@ -769,50 +774,42 @@ export default function DashboardPage() {
         <div className="modal-overlay">
           <div className="modal-card">
             <div className="modal-header">
-              <h2><i className="fa-solid fa-calendar-plus" style={{ color: '#0f9d58' }}></i> {editingBooking ? "Edit Booking Entry" : "New Booking Entry"}</h2>
-              <button className="btn-close" onClick={() => setShowModal(false)}>&times;</button>
+              <h2><i className="fa-solid fa-calendar-plus modal-title-icon"></i> {editingBooking ? "Edit Booking Entry" : "New Booking Entry"}</h2>
+              <button className="btn-close" aria-label="Close" onClick={() => setShowModal(false)}>&times;</button>
             </div>
 
-            <form onSubmit={handleFormSubmit} className="modal-body">
-              <div className="form-grid">
-                <div className="form-group">
-                  <label htmlFor="customId">Booking ID / Ref # <small style={{ color: '#5f6368' }}>(Optional - Kept empty)</small></label>
-                  <div className="input-icon-wrapper">
-                    <i className="fa-solid fa-hashtag input-icon"></i>
-                    <input id="customId" type="text" placeholder="Leave empty or enter custom ID..." value={customId} onChange={(e) => setCustomId(e.target.value)} />
-                  </div>
-                </div>
+            <form onSubmit={handleFormSubmit} className="modal-form">
+              <div className="modal-body">
+                <div className="form-grid">
+                  <h3 className="form-section full-width">General information</h3>
 
-                <div className="form-group">
-                  <label htmlFor="phone">Phone Number <span style={{ color: '#c5221f' }}>*</span></label>
-                  <div className="input-icon-wrapper">
-                    <i className="fa-solid fa-phone input-icon"></i>
+                  <div className="form-group">
+                    <label htmlFor="customId">Booking ID / Ref #</label>
+                    <input id="customId" type="text" placeholder="Auto-generated if empty" value={customId} onChange={(e) => setCustomId(e.target.value)} />
+                    <span className="field-hint">Optional. Leave empty to generate one.</span>
+                  </div>
+
+                  <div className="form-group">
+                    <label htmlFor="phone">Phone Number <span className="req">*</span></label>
                     <input id="phone" type="tel" required placeholder="e.g. +91 98765 43210" value={phone} onChange={(e) => setPhone(e.target.value)} />
                   </div>
-                </div>
 
-                <div className="form-group full-width">
-                  <label htmlFor="bookingDate">Booking Date <span style={{ color: '#c5221f' }}>*</span></label>
-                  <div className="input-icon-wrapper">
-                    <i className="fa-solid fa-calendar-day input-icon"></i>
+                  <div className="form-group">
+                    <label htmlFor="bookingDate">Booking Date <span className="req">*</span></label>
                     <input id="bookingDate" type="date" required value={bookingDate} onChange={(e) => setBookingDate(e.target.value)} />
                   </div>
-                </div>
 
-                <div className="form-group full-width">
-                  <label htmlFor="bookingDetails">Booking Details / Description <span style={{ color: '#c5221f' }}>*</span></label>
-                  <div className="input-icon-wrapper">
-                    <i className="fa-solid fa-receipt input-icon"></i>
+                  <div className="form-group">
+                    <label htmlFor="bookingDetails">Booking Details <span className="req">*</span></label>
                     <input id="bookingDetails" type="text" required placeholder="e.g. Banquet Suite & Lawn Access" value={bookingDetails} onChange={(e) => setBookingDetails(e.target.value)} />
                   </div>
-                </div>
 
-                <div className="form-group full-width" style={{ background: '#e6f4ea', padding: '12px', borderRadius: '8px', border: '1px dashed #ceead6' }}>
-                  <label htmlFor="discountMenuSelect" style={{ color: '#137333' }}>
-                    <i className="fa-solid fa-percent"></i> Discount Amount / Offer Selection <span style={{ color: '#c5221f' }}>*</span>
-                  </label>
-                  <select id="discountMenuSelect" className="form-select" style={{ width: '100%', padding: '10px' }} value={discountType} onChange={(e) => setDiscountType(e.target.value)}>
-                    <option value="None">No Discount (0)</option>
+                  <h3 className="form-section full-width">Pricing and token</h3>
+
+                  <div className="form-group full-width">
+                    <label htmlFor="discountMenuSelect">Discount / Offer <span className="req">*</span></label>
+                    <select id="discountMenuSelect" className="form-select" style={{ width: '100%' }} value={discountType} onChange={(e) => setDiscountType(e.target.value)}>
+                      <option value="None">No Discount (0)</option>
                     <optgroup label="Preset Discount Amounts">
                       <option value="50">₹50 Discount</option>
                       <option value="60">₹60 Discount</option>
@@ -831,76 +828,71 @@ export default function DashboardPage() {
                       <option value="Group offer for 6">Group offer for 6</option>
                       <option value="Group offer for 8">Group offer for 8</option>
                     </optgroup>
-                  </select>
-                </div>
+                    </select>
+                  </div>
 
-                <div className="form-group">
-                  <label>Token Paid Status</label>
-                  <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-                    {["Token Paid", "Token Not Paid", "Token Not Taken"].map((status) => {
-                      let btnColor = {};
-                      if (status === "Token Not Paid") btnColor = { backgroundColor: tokenStatus === status ? '#c5221f' : '#fadbd8', color: tokenStatus === status ? 'white' : '#c5221f', borderColor: '#c5221f' };
-                      else if (status === "Token Not Taken") btnColor = { backgroundColor: tokenStatus === status ? '#81c995' : '#d4edda', color: tokenStatus === status ? 'white' : '#137333', borderColor: '#81c995' };
-                      return (
-                        <button key={status} type="button" className={`btn ${tokenStatus === status ? "btn-primary" : "btn-secondary"}`} style={{ flex: 1, minWidth: '140px', ...btnColor }} onClick={() => setTokenStatus(status)}>
+                  <div className="form-group full-width">
+                    <label id="tokenStatusLabel">Token Paid Status</label>
+                    <div className="segmented" role="group" aria-labelledby="tokenStatusLabel">
+                      {["Token Paid", "Token Not Paid", "Token Not Taken"].map((status) => (
+                        <button key={status} type="button" className={`seg ${tokenStatus === status ? "active" : ""}`} aria-pressed={tokenStatus === status} onClick={() => setTokenStatus(status)}>
                           {status}
                         </button>
-                      );
-                    })}
-                  </div>
-                </div>
-
-                {tokenStatus === "Token Paid" && (
-                  <div className="form-group">
-                    <label htmlFor="tokenAmount">Token Paid Amount (₹)</label>
-                    <div className="input-icon-wrapper">
-                      <i className="fa-solid fa-indian-rupee-sign input-icon"></i>
-                      <input id="tokenAmount" type="number" placeholder="e.g. 1000" value={tokenAmount} onChange={(e) => setTokenAmount(e.target.value)} />
+                      ))}
                     </div>
                   </div>
-                )}
 
-                <div className="form-group full-width">
-                  <label>Booking Status</label>
-                  <select className="form-select" style={{ width: '100%', padding: '10px' }} value={bookingStatus} onChange={(e) => setBookingStatus(e.target.value)}>
-                    <option value="Confirmed">Confirmed</option>
-                    <option value="Pending">Pending</option>
-                    <option value="Not Confirmed">Not Confirmed</option>
-                    <option value="Settled">Settled</option>
-                    <option value="Cancelled">Cancelled</option>
-                    <option value="Rescheduled">Rescheduled</option>
-                  </select>
-                </div>
+                  {tokenStatus === "Token Paid" && (
+                    <div className="form-group">
+                      <label htmlFor="tokenAmount">Token Paid Amount (₹)</label>
+                      <input id="tokenAmount" type="number" placeholder="e.g. 1000" value={tokenAmount} onChange={(e) => setTokenAmount(e.target.value)} />
+                    </div>
+                  )}
 
-                <div className="form-group full-width">
-                  <label htmlFor="bookingType">Record Type</label>
-                  <select id="bookingType" className="form-select" value={bookingType} onChange={(e) => setBookingType(e.target.value)}>
-                    <option value="confirmed">Confirmed Booking</option>
-                    <option value="potential">Potential Booking / Callback</option>
-                  </select>
-                </div>
-                {bookingType === "potential" && (
-                  <div className="form-group full-width callback-panel">
-                    <label htmlFor="callbackDate">Callback reminder date</label>
-                    <input id="callbackDate" className="form-select" type="date" value={callbackDate} onChange={(e) => setCallbackDate(e.target.value)} />
-                    <label htmlFor="callbackTime">Time to call</label>
-                    <input id="callbackTime" className="form-select" type="time" value={callbackTime} onChange={(e) => setCallbackTime(e.target.value)} />
-                    <button type="button" className={`btn btn-sm ${callbackReminder ? "btn-primary" : "btn-secondary"}`} onClick={() => setCallbackReminder((enabled) => !enabled)} aria-pressed={callbackReminder}>
-                      <i className={`fa-solid ${callbackReminder ? "fa-bell" : "fa-bell-slash"}`}></i> {callbackReminder ? "Callback Reminder On" : "Add Call Back Reminder"}
-                    </button>
+                  <h3 className="form-section full-width">Status</h3>
+
+                  <div className="form-group">
+                    <label htmlFor="bookingStatus">Booking Status</label>
+                    <select id="bookingStatus" className="form-select" style={{ width: '100%' }} value={bookingStatus} onChange={(e) => setBookingStatus(e.target.value)}>
+                      <option value="Confirmed">Confirmed</option>
+                      <option value="Pending">Pending</option>
+                      <option value="Not Confirmed">Not Confirmed</option>
+                      <option value="Settled">Settled</option>
+                      <option value="Cancelled">Cancelled</option>
+                      <option value="Rescheduled">Rescheduled</option>
+                    </select>
                   </div>
-                )}
-                <div className="form-group full-width">
-                  <label htmlFor="notes">Notes / Remarks</label>
-                  <textarea id="notes" rows={2} placeholder="Add any special requirements..." value={notes} onChange={(e) => setNotes(e.target.value)}></textarea>
+
+                  <div className="form-group">
+                    <label htmlFor="bookingType">Record Type</label>
+                    <select id="bookingType" className="form-select" style={{ width: '100%' }} value={bookingType} onChange={(e) => setBookingType(e.target.value)}>
+                      <option value="confirmed">Confirmed Booking</option>
+                      <option value="potential">Potential Booking / Callback</option>
+                    </select>
+                  </div>
+
+                  {bookingType === "potential" && (
+                    <div className="form-group full-width callback-panel">
+                      <label htmlFor="callbackDate">Callback reminder date</label>
+                      <input id="callbackDate" className="form-select" type="date" value={callbackDate} onChange={(e) => setCallbackDate(e.target.value)} />
+                      <label htmlFor="callbackTime">Time to call</label>
+                      <input id="callbackTime" className="form-select" type="time" value={callbackTime} onChange={(e) => setCallbackTime(e.target.value)} />
+                      <button type="button" className={`btn btn-sm ${callbackReminder ? "btn-primary" : "btn-secondary"}`} onClick={() => setCallbackReminder((enabled) => !enabled)} aria-pressed={callbackReminder}>
+                        <i className={`fa-solid ${callbackReminder ? "fa-bell" : "fa-bell-slash"}`}></i> {callbackReminder ? "Callback Reminder On" : "Add Call Back Reminder"}
+                      </button>
+                    </div>
+                  )}
+
+                  <div className="form-group full-width">
+                    <label htmlFor="notes">Notes / Remarks</label>
+                    <textarea id="notes" rows={3} placeholder="Add any special requirements..." value={notes} onChange={(e) => setNotes(e.target.value)}></textarea>
+                  </div>
                 </div>
               </div>
 
               <div className="modal-footer">
-                <button type="button" className="btn btn-secondary" onClick={() => setShowModal(false)}>Cancel</button>
-                <button type="submit" className="btn btn-primary btn-lg">
-                  <i className="fa-solid fa-floppy-disk"></i> Save Booking Entry
-                </button>
+                <button type="submit" className="btn btn-primary">Save</button>
+                <button type="button" className="btn btn-ghost" onClick={() => setShowModal(false)}>Cancel</button>
               </div>
             </form>
           </div>
@@ -912,35 +904,35 @@ export default function DashboardPage() {
         <div className="modal-overlay">
           <div className="modal-card modal-card-sm">
             <div className="modal-header">
-              <h2><i className="fa-solid fa-user-gear" style={{ color: '#0f9d58' }}></i> My Account Profile</h2>
+              <h2><i className="fa-solid fa-user-gear" style={{ color: 'var(--ok)' }}></i> My Account Profile</h2>
               <button className="btn-close" onClick={() => setShowAccountModal(false)}>&times;</button>
             </div>
             <div className="modal-body">
               <div style={{ textAlign: 'center', padding: '10px 0' }}>
-                <div style={{ width: '60px', height: '60px', background: adminMode ? '#b06000' : '#0f9d58', color: '#fff', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.8rem', fontWeight: '700', margin: '0 auto 10px' }}>
+                <div style={{ width: '60px', height: '60px', background: adminMode ? 'var(--warn)' : 'var(--ok)', color: '#fff', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.8rem', fontWeight: '700', margin: '0 auto 10px' }}>
                   {user?.name ? user.name[0].toUpperCase() : 'U'}
                 </div>
                 <h3>{user?.name}</h3>
-                <p style={{ color: '#5f6368', fontSize: '0.85rem' }}>{user?.email}</p>
+                <p style={{ color: 'var(--dim)', fontSize: '0.85rem' }}>{user?.email}</p>
                 <div style={{ marginTop: '6px' }}>
-                  <span className="badge-tag" style={{ background: adminMode ? '#fef7e0' : '#e6f4ea', color: adminMode ? '#b06000' : '#137333' }}>
+                  <span className="badge-tag" style={{ background: adminMode ? 'var(--warn-bg)' : 'var(--ok-bg)', color: adminMode ? 'var(--warn)' : 'var(--ok)' }}>
                     {adminMode ? "👑 Super Admin Access" : "Standard User"}
                   </span>
                 </div>
               </div>
 
-              <div style={{ borderTop: '1px solid #dadce0', paddingTop: '12px', display: 'flex', flexDirection: 'column', gap: '8px', fontSize: '0.85rem' }}>
+              <div style={{ borderTop: '1px solid var(--line-strong)', paddingTop: '12px', display: 'flex', flexDirection: 'column', gap: '8px', fontSize: '0.85rem' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                  <span style={{ color: '#5f6368' }}>My Booking Entries:</span>
+                  <span style={{ color: 'var(--dim)' }}>My Booking Entries:</span>
                   <strong>{bookings.length} Bookings</strong>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                  <span style={{ color: '#5f6368' }}>Token Collected:</span>
-                  <strong style={{ color: '#137333' }}>{formatINR(tokenPaidAmt)}</strong>
+                  <span style={{ color: 'var(--dim)' }}>Token Collected:</span>
+                  <strong style={{ color: 'var(--ok)' }}>{formatINR(tokenPaidAmt)}</strong>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                  <span style={{ color: '#5f6368' }}>Cloud Storage Sync:</span>
-                  <strong style={{ color: isCloudConnected ? '#0f9d58' : '#b06000' }}>
+                  <span style={{ color: 'var(--dim)' }}>Cloud Storage Sync:</span>
+                  <strong style={{ color: isCloudConnected ? 'var(--ok)' : 'var(--warn)' }}>
                     {isCloudConnected ? (
                       <span><i className="fa-solid fa-cloud-check"></i> Connected (Netlify Cloud Database)</span>
                     ) : (
