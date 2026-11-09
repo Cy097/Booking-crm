@@ -20,8 +20,8 @@ export default function HomePage() {
 
   return (
     <div style={{ display: 'flex', minHeight: '100vh', alignItems: 'center', justifyContent: 'center' }}>
-      <p style={{ color: '#5f6368', fontFamily: 'Roboto, sans-serif' }}>
-        <i className="fa-solid fa-circle-notch fa-spin" style={{ marginRight: '8px', color: '#0f9d58' }}></i>
+      <p style={{ color: 'var(--dim)', fontFamily: 'Roboto, sans-serif' }}>
+        <i className="fa-solid fa-circle-notch fa-spin" style={{ marginRight: '8px', color: 'var(--ok)' }}></i>
         Redirecting to Master Booking Control Hub...
       </p>
     </div>
