@@ -19,11 +19,11 @@ export default function HomePage() {
   }, [router]);
 
   return (
-    <div style={{ display: 'flex', minHeight: '100vh', alignItems: 'center', justifyContent: 'center' }}>
-      <p style={{ color: 'var(--dim)', fontFamily: 'Roboto, sans-serif' }}>
-        <i className="fa-solid fa-circle-notch fa-spin" style={{ marginRight: '8px', color: 'var(--ok)' }}></i>
-        Redirecting to Master Booking Control Hub...
-      </p>
+    <div className="boot">
+      <div>
+        <div className="boot-spin"></div>
+        Loading Master Booking Control Hub...
+      </div>
     </div>
   );
 }
