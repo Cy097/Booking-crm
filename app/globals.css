@@ -488,3 +488,197 @@ input:focus, select:focus, textarea:focus { border-color: #3f8f8a; box-shadow: 0
   .header-right, .header-group { width: 100%; }
   .header-group .btn { flex: 1 1 auto; }
 }
+
+/* Apple-inspired Booking Hub theme */
+:root {
+  color-scheme: dark;
+  --bg: #000;
+  --panel: #1c1c1e;
+  --panel-2: #2c2c2e;
+  --field: #2c2c2e;
+  --line: rgba(84, 84, 88, .55);
+  --line-strong: rgba(84, 84, 88, .75);
+  --ink: #f5f5f7;
+  --ink-strong: #fff;
+  --dim: #98989f;
+  --shell: #2c2c2e;
+  --shell-2: #3a3a3c;
+  --blue: #32d4b8;
+  --blue-hover: #26b89f;
+  --blue-soft: rgba(50, 212, 184, .16);
+  --ok: #32d4b8;
+  --ok-bg: rgba(50, 212, 184, .16);
+  --warn: #ffb340;
+  --warn-bg: rgba(255, 159, 10, .2);
+  --bad: #ff6961;
+  --bad-bg: rgba(255, 69, 58, .2);
+  --info: #32d4b8;
+  --radius: 22px;
+  --card-shadow: none;
+  --bg-main: var(--bg);
+  --bg-card: var(--panel);
+  --input-bg: var(--field);
+  --border-color: var(--line);
+  --border-grid: var(--line);
+  --text-main: var(--ink);
+  --text-muted: var(--dim);
+  --success-color: var(--ok);
+  --success-bg: var(--ok-bg);
+  --warning-color: var(--warn);
+  --warning-bg: var(--warn-bg);
+  --danger-color: var(--bad);
+  --danger-bg: var(--bad-bg);
+  --calm-orange: #ffb340;
+  --calm-greybar: #48484a;
+}
+
+html, html[data-theme='light'], html[data-theme='dark'] { color-scheme: dark; background: var(--bg); }
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', Inter, system-ui, sans-serif;
+  font-weight: 400;
+  letter-spacing: 0;
+  -webkit-font-smoothing: antialiased;
+}
+h1, h2, h3 { color: var(--ink-strong); font-family: inherit; letter-spacing: -.035em; text-transform: none; }
+:focus-visible { outline: 3px solid var(--blue-soft); outline-offset: 2px; box-shadow: 0 0 0 1.5px var(--blue); }
+.crm-container { max-width: 1240px; padding: 28px 32px 80px; gap: 20px; }
+.crm-header {
+  margin: 0 0 4px;
+  padding: 8px 0 18px;
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid var(--line);
+  box-shadow: none;
+}
+.logo-box { align-items: center; gap: 12px; }
+.logo-icon {
+  width: 38px; height: 38px; color: #00241d;
+  background: linear-gradient(160deg, #46e2c7, #0f8b78);
+  border: 0; border-radius: 11px; clip-path: none; font-size: 1rem;
+}
+.app-title {
+  display: inline-flex; align-items: center; gap: 10px; padding: 0;
+  color: var(--ink-strong); background: transparent; clip-path: none;
+  font: 650 24px/1.15 -apple-system, BlinkMacSystemFont, Inter, system-ui, sans-serif;
+  letter-spacing: -.04em; text-transform: none;
+}
+.app-title .badge-tag {
+  padding: 5px 9px; color: var(--blue); background: var(--blue-soft);
+  border: 0; border-radius: 999px; font: 600 11px/1.2 -apple-system, BlinkMacSystemFont, Inter, system-ui, sans-serif;
+  letter-spacing: .01em; text-transform: none;
+}
+.app-subtitle { display: inline-block; margin-top: 5px; padding: 0; color: var(--dim); background: transparent; clip-path: none; font-weight: 400; }
+.app-subtitle strong { color: var(--ink); font-weight: 600; }
+.header-right { gap: 8px; }
+.header-group + .header-group { border-color: var(--line); }
+.crm-header .btn, .btn {
+  min-height: 36px; padding: 8px 15px; color: var(--ink);
+  background: var(--panel-2); border: 0; border-radius: 999px;
+  font: 500 14px/1.2 -apple-system, BlinkMacSystemFont, Inter, system-ui, sans-serif; letter-spacing: 0; text-transform: none;
+  box-shadow: none; transition: background-color .16s ease, opacity .16s ease;
+}
+.crm-header .btn:hover, .btn:hover { background: #3a3a3c; border-color: transparent !important; box-shadow: none; }
+.crm-header .btn-primary, .btn-primary, .btn-excel { color: #00241d; background: var(--blue); border: 0; font-weight: 600; }
+.crm-header .btn-primary:hover, .btn-primary:hover, .btn-excel:hover { color: #00241d; background: #46e2c7; }
+.user-avatar { background: var(--blue); border-radius: 50%; }
+.metrics-grid { grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 14px; }
+.metric-card {
+  min-height: 128px; padding: 20px; background: var(--panel);
+  border: 1px solid rgba(255,255,255,.035); border-radius: 22px;
+  box-shadow: 0 1px 2px rgba(0,0,0,.16); overflow: hidden;
+}
+.metric-card::before { display: none; }
+.metric-header, .metric-body { position: relative; z-index: 1; }
+.metric-title, .metric-subtext { color: var(--dim); text-transform: none; }
+.metric-title { font-size: 13px; font-weight: 500; }
+.metric-value { color: var(--ink-strong); font: 700 40px/1.12 -apple-system, BlinkMacSystemFont, Inter, system-ui, sans-serif; letter-spacing: -.04em; font-variant-numeric: tabular-nums; }
+.metric-value .unit { color: var(--dim); font: 500 14px/1 -apple-system, BlinkMacSystemFont, Inter, system-ui, sans-serif; }
+.metric-icon { color: var(--blue); background: var(--blue-soft); border-radius: 50%; }
+.metric-card:hover { border-color: var(--line); box-shadow: 0 1px 2px rgba(0,0,0,.16); }
+.crm-container > div[style*='flex-wrap'] { gap: 8px !important; }
+.crm-container > div[style*='flex-wrap'] > span { color: var(--dim) !important; text-transform: none; letter-spacing: 0; }
+.tab {
+  min-height: 34px; padding: 7px 14px; color: var(--ink);
+  background: var(--panel); border: 0; border-radius: 999px; clip-path: none;
+  font: 500 13px/1.2 -apple-system, BlinkMacSystemFont, Inter, system-ui, sans-serif; text-transform: none; position: relative;
+}
+.tab::after { display: none; }
+.tab:hover { background: #2c2c2e; filter: none; }
+.tab.active { color: var(--bg); background: var(--ink); border-color: transparent; font-weight: 600; }
+.toolbar-card, .callback-tracker, .table-container-card {
+  background: var(--panel); border: 1px solid rgba(255,255,255,.035);
+  border-radius: 22px; box-shadow: 0 1px 2px rgba(0,0,0,.16);
+}
+.toolbar-card { gap: 10px; padding: 16px; }
+input:not([type='checkbox']):not([type='radio']), select, textarea, .form-select {
+  min-height: 40px; color: var(--ink); background: var(--field);
+  border: 1px solid transparent; border-radius: 12px; color-scheme: dark;
+}
+input::placeholder, textarea::placeholder { color: var(--dim); }
+input:hover, select:hover, textarea:hover { border-color: var(--line-strong); }
+input:focus, select:focus, textarea:focus { border-color: var(--blue); box-shadow: 0 0 0 3px var(--blue-soft); }
+.digital-clock { color: var(--ink); background: var(--field); border: 1px solid var(--line); border-radius: 12px; }
+.callback-tracker { border-top: 1px solid var(--line); padding: 18px; }
+.callback-tracker h2, .modal-header h2, .modal-header h3 { font: 650 20px/1.2 -apple-system, BlinkMacSystemFont, Inter, system-ui, sans-serif; letter-spacing: -.025em; text-transform: none; }
+.callback-tracker-header { border-color: var(--line); }
+.callback-item { background: var(--field); border-color: var(--line); border-radius: 14px; }
+.callback-item.callback-due { border-left-color: var(--warn); }
+.callback-panel { background: var(--ok-bg); border-color: var(--ok); border-radius: 14px; }
+.callback-empty { color: var(--ok); }
+.table-container-card { overflow: hidden; }
+.table-header-bar, .table-header { background: var(--panel); border-bottom: 1px solid var(--line); }
+.crm-table th { color: var(--dim); background: var(--panel); border-color: var(--line); font: 500 12px/1.3 -apple-system, BlinkMacSystemFont, Inter, system-ui, sans-serif; letter-spacing: .02em; text-transform: none; }
+.crm-table td { border-color: var(--line); }
+.crm-table tbody tr:hover td { background: rgba(255,255,255,.035); }
+.badge-status, .booking-id-badge, .badge-tag { border-radius: 999px; clip-path: none; text-transform: none; }
+.token-paid, .status-confirmed { color: var(--ok); background: var(--ok-bg); border-color: transparent; }
+.token-unpaid, .status-not-confirmed { color: var(--bad); background: var(--bad-bg); border-color: transparent; }
+.token-not-taken { color: var(--dim); background: rgba(127,127,127,.14); border-color: transparent; }
+.token-settled { color: #00241d; background: var(--ok); border-color: transparent; }
+.status-pending { color: var(--warn); background: var(--warn-bg); border-color: transparent; }
+.status-rescheduled { color: var(--blue); background: var(--blue-soft); border-color: transparent; }
+.booking-id-badge { color: var(--blue); background: var(--blue-soft); border-color: transparent; }
+.action-btn { color: var(--ink); background: var(--field); border: 0; border-radius: 999px; }
+.action-btn:hover { border-color: transparent; background: #3a3a3c; }
+.modal-overlay { background: rgba(0,0,0,.58); backdrop-filter: blur(8px); }
+.modal-card { background: var(--panel); border: 1px solid var(--line); border-radius: 24px; box-shadow: 0 20px 60px rgba(0,0,0,.35); }
+.modal-header, .modal-footer { border-color: var(--line); }
+.modal-footer { background: var(--panel); }
+.form-group label, .form-label, .password-change-panel label { color: var(--ink); }
+.password-change-panel, .account-row { background: var(--field); border-color: var(--line); border-radius: 14px; }
+.toast { color: var(--ink); background: var(--panel-2); border-color: var(--line); border-radius: 14px; }
+@media (max-width: 760px) {
+  .crm-container { padding: 18px 16px 56px; gap: 16px; }
+  .crm-header { padding: 8px 0 16px; }
+  .app-title { font-size: 21px; }
+  .header-right, .header-group { width: 100%; }
+  .header-group .btn { flex: 1 1 auto; }
+  .metric-card { min-height: 112px; padding: 16px; }
+  .table-container-card { overflow-x: auto; }
+}
+.auth-page-container {
+  background:
+    radial-gradient(900px 500px at 15% 0%, rgba(50, 212, 184, .14), transparent 60%),
+    radial-gradient(700px 500px at 100% 100%, rgba(0, 122, 255, .08), transparent 60%),
+    var(--bg);
+}
+.auth-card {
+  max-width: 390px;
+  gap: 20px;
+  padding: 34px 28px 26px;
+  background: rgba(28, 28, 30, .88);
+  border: 1px solid var(--line);
+  border-radius: 24px;
+  box-shadow: 0 20px 60px rgba(0,0,0,.22);
+  backdrop-filter: saturate(180%) blur(22px);
+}
+.auth-logo { color: var(--blue); }
+.auth-title { font-size: 26px; letter-spacing: -.03em; }
+.auth-subtitle { line-height: 1.5; }
+.auth-form { gap: 14px; }
+.auth-form .btn-primary { color: #00241d; background: var(--blue); border-color: transparent; border-radius: 14px; }
+.auth-form .btn-primary:hover { background: #46e2c7; }
+.auth-footer a { color: var(--blue); }
+.error-message-box { border-radius: 12px; }
